@@ -85,13 +85,18 @@ export default function Map({ userPos, locations, handleMarkerClick }: MapProps)
       map.current.on('load', () => {
         if (!map.current) return;
 
-        map.current.setTerrain({ source: 'mapbox-dem', exaggeration: 1.5 });
-
+        // Add the DEM source first
         map.current.addSource('mapbox-dem', {
           'type': 'raster-dem',
           'url': 'mapbox://mapbox.mapbox-terrain-dem-v1',
           'tileSize': 512,
           'maxzoom': 14
+        });
+
+        // Then set the terrain using the source
+        map.current.setTerrain({ 
+          source: 'mapbox-dem', 
+          exaggeration: 1.5 
         });
 
         map.current.addLayer({
