@@ -42,11 +42,11 @@ export default function HomePage() {
   const demoFridges: FridgeLocation[] = [
     { 
       id: '1',
-      name: 'Fridge #1',
-      address: '123 Washington Square, NYU Campus',
-      distance: '0.3 km',
+      name: 'MetroTech Fridge',
+      address: '6 MetroTech Center, Brooklyn',
+      distance: '0.2 km',
       status: 'available',
-      coordinates: [-73.9971, 40.7308],
+      coordinates: [-73.9857, 40.6937], // NYU Tandon area
       percentageFull: 75,
       items: [
         { id: '1', name: 'Insulin', category: 'medicine', quantity: 5, addedAt: '2 hours ago' },
@@ -57,11 +57,11 @@ export default function HomePage() {
     },
     { 
       id: '2',
-      name: 'Fridge #2',
-      address: '456 Broadway Ave, Greenwich Village',
-      distance: '0.5 km',
+      name: 'DUMBO Fridge',
+      address: '45 Water Street, Brooklyn',
+      distance: '0.6 km',
       status: 'upcoming',
-      coordinates: [-73.9990, 40.7264],
+      coordinates: [-73.9891, 40.7028], // DUMBO area
       percentageFull: 30,
       items: [
         { id: '6', name: 'Bandages', category: 'medicine', quantity: 20, addedAt: '1 day ago' },
@@ -70,11 +70,11 @@ export default function HomePage() {
     },
     { 
       id: '3',
-      name: 'Fridge #3',
-      address: '789 Lafayette St, NoHo',
-      distance: '0.8 km',
+      name: 'Downtown Brooklyn Fridge',
+      address: '345 Jay Street, Brooklyn',
+      distance: '0.4 km',
       status: 'unavailable',
-      coordinates: [-73.9947, 40.7287],
+      coordinates: [-73.9877, 40.6925], // Downtown Brooklyn
       percentageFull: 90,
       items: []
     },
