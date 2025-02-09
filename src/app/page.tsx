@@ -631,9 +631,9 @@ function HomePage() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {filteredItems.map((item) => (
+                  {filteredItems.map((item, index) => (
                     <div
-                      key={item.id}
+                      key={`${item.id}-${index}`}
                       className="flex items-center justify-between p-4 rounded-2xl bg-gray-800/50 border border-gray-700"
                     >
                       <div>
@@ -678,22 +678,22 @@ function HomePage() {
               user={{ name: session.user?.name || '', email: session.user?.email || '' }}
             />
           )}
-          </>
-        )}
+        </>
+      )}
 
 
 
 
 
 
-          {/* Add Item Modal */}
-          <AddItemModal
-            isOpen={isAddItemModalOpen}
-            onClose={() => setIsAddItemModalOpen(false)}
-            fridges={fridges}
-          />
-        </div>
-      );
+      {/* Add Item Modal */}
+      <AddItemModal
+        isOpen={isAddItemModalOpen}
+        onClose={() => setIsAddItemModalOpen(false)}
+        fridges={fridges}
+      />
+    </div>
+  );
 }
 
-      export default HomePage;
+export default HomePage;
