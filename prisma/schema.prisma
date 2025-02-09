@@ -29,6 +29,7 @@ model Fridge {
   latitude  Float
   longitude Float
   isLocked  Boolean
+  address   String
 }
 
 model Item {
