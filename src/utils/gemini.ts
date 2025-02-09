@@ -8,6 +8,7 @@ interface ItemAnalysis {
   description: string;
   quantity: string;
   confidence: number;
+  category: 'food' | 'utilities' | 'medicine';
 }
 
 export async function analyzeImage(imageData: string): Promise<ItemAnalysis> {
@@ -21,17 +22,17 @@ export async function analyzeImage(imageData: string): Promise<ItemAnalysis> {
       properties: {
         name: {
           type: SchemaType.STRING,
-          description: "Name of the food item",
+          description: "Name of the item",
           nullable: false,
         },
         description: {
           type: SchemaType.STRING,
-          description: "Detailed description of the food item including its condition and freshness",
+          description: "Detailed description of the item including its condition",
           nullable: false,
         },
         quantity: {
           type: SchemaType.STRING,
-          description: "Estimated quantity of the food item as a number",
+          description: "Estimated quantity of the item as a number",
           nullable: false,
         },
         confidence: {
@@ -39,8 +40,14 @@ export async function analyzeImage(imageData: string): Promise<ItemAnalysis> {
           description: "Confidence score between 0 and 1",
           nullable: false,
         },
+        category: {
+          type: SchemaType.STRING,
+          description: "Category of the item: 'food', 'utilities', or 'medicine'",
+          enum: ["food", "utilities", "medicine"],
+          nullable: false,
+        }
       },
-      required: ["name", "description", "quantity", "confidence"],
+      required: ["name", "description", "quantity", "confidence", "category"],
     };
 
     const model = genAI.getGenerativeModel({
@@ -51,11 +58,15 @@ export async function analyzeImage(imageData: string): Promise<ItemAnalysis> {
       },
     });
     
-    const prompt = `Analyze this image of a this item. It needs to go in a donation box db. Consider:
+    const prompt = `Analyze this image of an item for a donation box database. Consider:
     1. Accurate item name
-    2. Concise description, for eg, "100g of rice", "Two tomatoes"
+    2. Concise description
     3. Realistic quantity estimation (must return integer)
-    4. High confidence only when certain`;
+    4. Categorize the item into one of these categories:
+       - 'food': Any edible items or beverages
+       - 'utilities': Household items, tools, or general supplies
+       - 'medicine': Medical supplies, first aid items, or medications
+    5. High confidence only when certain`;
 
     const result = await model.generateContent([
       { text: prompt },
@@ -75,7 +86,8 @@ export async function analyzeImage(imageData: string): Promise<ItemAnalysis> {
       name: "Unknown Item",
       description: "No description available",
       quantity: "1",
-      confidence: 0.0
+      confidence: 0.0,
+      category: 'food'
     };
 
     try {
@@ -85,7 +97,8 @@ export async function analyzeImage(imageData: string): Promise<ItemAnalysis> {
         name: parsedResponse.name,
         description: parsedResponse.description,
         quantity: parsedResponse.quantity,
-        confidence: parsedResponse.confidence
+        confidence: parsedResponse.confidence,
+        category: parsedResponse.category
       };
     } catch (e) {
       console.error('Failed to parse JSON response:', text);

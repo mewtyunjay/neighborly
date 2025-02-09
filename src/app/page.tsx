@@ -338,6 +338,10 @@ function HomePage() {
     }
   };
 
+  const availableFridges = useMemo(() => {
+    return fridges.filter(f => f.status === 'available');
+  }, [fridges]);
+
   return (
     <div className="h-screen w-full relative bg-[#111111]">
       {/* Header - Fixed on mobile, hidden on desktop */}
@@ -670,7 +674,6 @@ function HomePage() {
       )}
       {session && (
         <>
-          {console.log('User is authenticated')}
           {session.user && (
             <Profile
               isOpen={isProfileOpen}
@@ -690,7 +693,7 @@ function HomePage() {
       <AddItemModal
         isOpen={isAddItemModalOpen}
         onClose={() => setIsAddItemModalOpen(false)}
-        fridges={fridges}
+        fridges={availableFridges}
       />
     </div>
   );

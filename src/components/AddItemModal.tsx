@@ -18,7 +18,8 @@ interface NewItemPayload {
   userId: string;
   photo?: File;
   fridgeId: string;
-  category: 'medicine' | 'utilities' | 'food';
+  category: 'medicine' | 'utilities' | 'food' | null;
+  
 }
 
 interface AddItemModalProps {
@@ -34,11 +35,12 @@ export default function AddItemModal({ isOpen, onClose, fridges }: AddItemModalP
     name: '',
     description: '',
     quantity: '1',
-    category: 'food' as 'medicine' | 'utilities' | 'food'
+    category: null as 'medicine' | 'utilities' | 'food' | null
   });
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const webcamRef = useRef<Webcam | null>(null);
 
   useEffect(() => {
@@ -50,23 +52,10 @@ export default function AddItemModal({ isOpen, onClose, fridges }: AddItemModalP
         name: '',
         description: '',
         quantity: '1',
+        category: null
       });
     }
   }, [isOpen]);
-
-  useEffect(() => {
-    if (isOpen && fridges.length > 0) {
-      const availableFridges = fridges.filter(f => f.status === 'available');
-      if (availableFridges.length > 0) {
-        const nearest = availableFridges.reduce((nearest, current) => {
-          const nearestDist = parseFloat(nearest.distance.split(' ')[0]);
-          const currentDist = parseFloat(current.distance.split(' ')[0]);
-          return currentDist < nearestDist ? current : nearest;
-        });
-        setSelectedFridge(nearest);
-      }
-    }
-  }, [isOpen, fridges]);
 
   const handleStartCamera = () => {
     setIsCameraActive(true);
@@ -88,6 +77,7 @@ export default function AddItemModal({ isOpen, onClose, fridges }: AddItemModalP
           name: analysis.name,
           description: analysis.description,
           quantity: analysis.quantity,
+          category: analysis.category
         });
       } catch (error) {
         console.error('Error analyzing image:', error);
@@ -105,15 +95,39 @@ export default function AddItemModal({ isOpen, onClose, fridges }: AddItemModalP
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedFridge || parseInt(formData.quantity) === 0) return;
+    setIsSubmitting(true);
+    try {
+      const response = await fetch('/api/add-item', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          fridgeId: selectedFridge.id,
+          quantity: parseInt(formData.quantity),
+          userId: "67a7f99e54bf1718d6c58d44", // Replace with actual user ID from session
+          photo: capturedImage, // Using the captured webcam image
+          description: formData.description,
+          category: formData.category
+        }),
+      });
 
-    console.log({
-      fridge: selectedFridge,
-      item: {
-        ...formData,
-        quantity: parseInt(formData.quantity),
-      },
-    });
-    onClose();
+      if (!response.ok) {
+        throw new Error('Failed to add item');
+      }
+
+      const data = await response.json();
+      if (data.success) {
+        onClose();
+      } else {
+        throw new Error(data.error || 'Failed to add item');
+      }
+    } catch (error) {
+      console.error('Error adding item:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -155,6 +169,31 @@ export default function AddItemModal({ isOpen, onClose, fridges }: AddItemModalP
         )}
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
+          <div className="space-y-4 mb-6">
+            <div>
+              <label htmlFor="fridge" className="block text-sm font-medium text-gray-400 mb-1">
+                Select Fridge
+              </label>
+              <select
+                id="fridge"
+                value={selectedFridge?.id || ''}
+                onChange={(e) => {
+                  const fridge = fridges.find(f => f.id === e.target.value);
+                  setSelectedFridge(fridge || null);
+                }}
+                className="w-full px-4 py-2 bg-[#1D1D1D] rounded-xl text-gray-100 border border-gray-800 focus:border-[#e6e6e6]/50 focus:ring-1 focus:ring-[#e6e6e6]/50 focus:outline-none transition-colors"
+                required
+              >
+                <option value="">Select a fridge</option>
+                {fridges.map(fridge => (
+                  <option key={fridge.id} value={fridge.id}>
+                    {fridge.name} ({fridge.distance})
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
           {isCameraActive ? (
             <div className="relative w-full aspect-video rounded-xl overflow-hidden">
               <Webcam
@@ -269,6 +308,24 @@ export default function AddItemModal({ isOpen, onClose, fridges }: AddItemModalP
                 className="w-full px-4 py-2 bg-[#1D1D1D] rounded-xl text-gray-100 placeholder-gray-500 border border-gray-800 focus:border-[#e6e6e6]/50 focus:ring-1 focus:ring-[#e6e6e6]/50 focus:outline-none transition-colors"
                 required
               />
+            </div>
+
+            <div>
+              <label htmlFor="category" className="block text-sm font-medium text-gray-400 mb-1">
+                Category
+              </label>
+              <select
+                id="category"
+                value={formData.category || ''}
+                onChange={e => setFormData({ ...formData, category: e.target.value as 'medicine' | 'utilities' | 'food' })}
+                className="w-full px-4 py-2 bg-[#1D1D1D] rounded-xl text-gray-100 border border-gray-800 focus:border-[#e6e6e6]/50 focus:ring-1 focus:ring-[#e6e6e6]/50 focus:outline-none transition-colors"
+                required
+              >
+                <option value="">Select a category</option>
+                <option value="food">Food</option>
+                <option value="medicine">Medicine</option>
+                <option value="utilities">Utilities</option>
+              </select>
             </div>
           </div>
 
