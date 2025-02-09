@@ -379,7 +379,7 @@ export default function HomePage() {
                   onClick={() => setActiveFilter(filter)}
                   className={`px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-all duration-200 ${
                     activeFilter === filter
-                      ? `bg-${getStatusColor(filter)}-500/20 text-red-400 border border-emerald-500/20 shadow-lg shadow-emerald-500/10`
+                      ? `bg-${getStatusColor(filter)}-500/20 text-${getStatusColor(filter)}-400 border border-${getStatusColor(filter)}-500/20 shadow-lg shadow-${getStatusColor(filter)}-500/10`
                       : 'text-gray-400 hover:bg-[#1D1D1D] hover:text-white border border-transparent'
                   }`}
                 >
