@@ -101,6 +101,7 @@ export default function HomePage() {
 
   // Memoize the map component with fridge locations
   const MapComponent = useMemo(() => (
+
     <Map 
       userPos={userPos || undefined} 
       locations={demoFridges.map(fridge => ({
@@ -118,6 +119,7 @@ export default function HomePage() {
         }
       }}
     />
+    
   ), [userPos, demoFridges, selectedFridgeId]);
 
   useEffect(() => {
@@ -135,22 +137,25 @@ export default function HomePage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
+      case 'All':
+        return 'bg-cyan-400 text-cyan-400 border-cyan-400';
       case 'available':
+        return 'bg-emerald-400/10 text-emerald-400 border-emerald-400/20';
+      case 'Available':
         return 'bg-emerald-400/10 text-emerald-400 border-emerald-400/20';
       case 'upcoming':
         return 'bg-yellow-400/10 text-yellow-400 border-yellow-400/20';
+      case 'Upcoming':
+          return 'bg-yellow-400/10 text-yellow-400 border-yellow-400/20';
       case 'unavailable':
         return 'bg-red-400/10 text-red-400 border-red-400/20';
+      case 'Unavailable':
+          return 'bg-red-400/10 text-red-400 border-red-400/20';
       default:
         return 'bg-gray-400/10 text-gray-400 border-gray-400/20';
     }
   };
 
-  const getPercentageColor = (percentage: number) => {
-    if (percentage >= 80) return 'text-red-400';
-    if (percentage >= 50) return 'text-yellow-400';
-    return 'text-emerald-400';
-  };
 
   const filteredItems = useMemo(() => {
     if (!selectedFridge) return [];
@@ -294,7 +299,7 @@ export default function HomePage() {
                       <h3 className="text-gray-100 font-medium group-hover:text-white">
                         {fridge.name}
                       </h3>
-                      <span className={`text-sm font-medium ${getPercentageColor(fridge.percentageFull)}`}>
+                      <span className={`text-sm font-medium text-emerald-400`}>
                         {fridge.percentageFull}% full
                       </span>
                     </div>
@@ -313,7 +318,7 @@ export default function HomePage() {
                   {/* Percentage bar */}
                   <div className="h-1.5 bg-gray-800/50 rounded-full overflow-hidden">
                     <div 
-                      className={`h-full ${getPercentageColor(fridge.percentageFull)} bg-current transition-all duration-300`}
+                      className={`h-full text bg-current transition-all duration-300`}
                       style={{ width: `${fridge.percentageFull}%` }}
                     />
                   </div>
@@ -352,7 +357,7 @@ export default function HomePage() {
                   onClick={() => setActiveFilter(filter)}
                   className={`px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-all duration-200 ${
                     activeFilter === filter
-                      ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 shadow-lg shadow-emerald-500/10'
+                      ? `bg-${getStatusColor(filter)}-500/20 text-red-400 border border-emerald-500/20 shadow-lg shadow-emerald-500/10`
                       : 'text-gray-400 hover:bg-[#1D1D1D] hover:text-white border border-transparent'
                   }`}
                 >
@@ -380,7 +385,7 @@ export default function HomePage() {
                       <h3 className="text-gray-100 font-medium group-hover:text-white">
                         {fridge.name}
                       </h3>
-                      <span className={`text-sm font-medium ${getPercentageColor(fridge.percentageFull)}`}>
+                      <span className={`text-sm font-medium text-emerald-400`}>
                         {fridge.percentageFull}% full
                       </span>
                     </div>
@@ -399,7 +404,7 @@ export default function HomePage() {
                   {/* Percentage bar */}
                   <div className="h-1.5 bg-gray-800/50 rounded-full overflow-hidden">
                     <div 
-                      className={`h-full ${getPercentageColor(fridge.percentageFull)} bg-current transition-all duration-300`}
+                      className={`h-full text-emerald-400 bg-current transition-all duration-300`}
                       style={{ width: `${fridge.percentageFull}%` }}
                     />
                   </div>
