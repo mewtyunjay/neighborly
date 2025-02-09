@@ -20,9 +20,10 @@ interface AddItemModalProps {
     name: string;
     email: string;
   };
+  onItemAdded?: () => void;
 }
 
-export default function AddItemModal({ isOpen, onClose, fridges, user }: AddItemModalProps) {
+export default function AddItemModal({ isOpen, onClose, fridges, user, onItemAdded }: AddItemModalProps) {
   const [selectedFridge, setSelectedFridge] = useState<FridgeLocation | null>(null);
   const [selectedPhoto, setSelectedPhoto] = useState<File | null>(null);
   const [formData, setFormData] = useState({
@@ -100,8 +101,8 @@ export default function AddItemModal({ isOpen, onClose, fridges, user }: AddItem
           name: formData.name,
           fridgeId: selectedFridge.id,
           quantity: parseInt(formData.quantity),
-          userId: user.name, // Replace with actual user ID from session
-          photo: capturedImage, // Using the captured webcam image
+          userId: user.name,
+          photo: capturedImage,
           description: formData.description,
           category: formData.category
         }),
@@ -114,6 +115,9 @@ export default function AddItemModal({ isOpen, onClose, fridges, user }: AddItem
       const data = await response.json();
       if (data.success) {
         onClose();
+        if (onItemAdded) {
+          onItemAdded();
+        }
       } else {
         throw new Error(data.error || 'Failed to add item');
       }

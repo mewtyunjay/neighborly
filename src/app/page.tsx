@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useMemo, useRef } from 'react';
+import { useEffect, useState, useMemo, useRef, useCallback } from 'react';
 import Map from '@/components/Map';
 import AddItemModal from '@/components/AddItemModal';
 // import { getUserSession } from '@/lib/session';
@@ -343,6 +343,42 @@ function HomePage() {
   const availableFridges = useMemo(() => {
     return fridges.filter(f => f.status === 'available');
   }, [fridges]);
+
+  const refreshFridges = useCallback(async () => {
+    if (userPos) {
+      try {
+        const response = await fetch('/api/load', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ longitude: userPos[0], latitude: userPos[1] }),
+        });
+
+        const data = await response.json();
+        const mappedFridges: FridgeLocation[] = data.map((fridge: any) => ({
+          id: fridge._id,
+          name: fridge.name,
+          address: fridge.address,
+          distance: "0.5 km",
+          status: fridge.isLocked ? 'available' : 'unavailable',
+          coordinates: fridge.location.coordinates,
+          percentageFull: 75,
+          items: fridge.items.map((item: any) => ({
+            id: item.id,
+            name: item.name,
+            quantity: item.quantity,
+            addedAt: new Date(item.createdAt).toLocaleString(),
+            category: 'food'
+          }))
+        }));
+
+        setFridges(mappedFridges);
+      } catch (error) {
+        console.error("Error refreshing fridges:", error);
+      }
+    }
+  }, [userPos]);
 
   return (
     <div className="h-screen w-full relative bg-[#111111]">
@@ -692,6 +728,7 @@ function HomePage() {
         onClose={() => setIsAddItemModalOpen(false)}
         fridges={availableFridges}
         user={{ name: session?.user?.name || '', email: session?.user?.email || '' }}
+        onItemAdded={refreshFridges}
       />
     </div>
   );
