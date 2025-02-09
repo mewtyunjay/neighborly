@@ -158,6 +158,18 @@ export default function HomePage() {
     }
   };
 
+  function getStatusBarColor(status: string) {
+    switch (status.toLowerCase()) {
+      case 'available':
+        return 'bg-emerald-400';
+      case 'upcoming':
+        return 'bg-yellow-400';
+      case 'unavailable':
+        return 'bg-red-400';
+      default:
+        return 'bg-gray-400';
+    }
+  }
 
   const filteredItems = useMemo(() => {
     if (!selectedFridge) return [];
@@ -245,7 +257,7 @@ export default function HomePage() {
               placeholder="Search fridges..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-4 py-2 bg-[#1D1D1D] rounded-xl text-gray-100 placeholder-gray-500 border border-gray-800 focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 focus:outline-none transition-colors text-sm"
+              className="w-full px-4 py-2 bg-[#1D1D1D] rounded-xl text-gray-100 placeholder-gray-500 border border-[#e6e6e6] focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 focus:outline-none transition-colors text-sm"
             />
             <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -339,7 +351,7 @@ export default function HomePage() {
                   {/* Percentage bar */}
                   <div className="h-1.5 bg-gray-800/50 rounded-full overflow-hidden">
                     <div
-                      className={`h-full text bg-current transition-all duration-300`}
+                      className={`h-full ${getStatusBarColor(fridge.status)} transition-all duration-300`}
                       style={{ width: `${fridge.percentageFull}%` }}
                     />
                   </div>
@@ -395,8 +407,8 @@ export default function HomePage() {
                   key={fridge.id}
                   onClick={() => handleFridgeClick(fridge)}
                   className={`group p-3 rounded-xl transition-all duration-200 cursor-pointer border ${selectedFridgeId === fridge.id
-                      ? 'bg-[#1D1D1D] border-emerald-500/50 shadow-lg shadow-emerald-500/10'
-                      : 'hover:bg-[#1D1D1D] border-gray-800/50 hover:border-emerald-500/20 hover:shadow-lg hover:shadow-emerald-500/5'
+                    ? 'bg-[#1D1D1D] border-emerald-500/50 shadow-lg shadow-emerald-500/10'
+                    : 'hover:bg-[#1D1D1D] border-gray-800/50 hover:border-emerald-500/20 hover:shadow-lg hover:shadow-emerald-500/5'
                     }`}
                 >
                   <div className="flex items-center justify-between mb-2">
@@ -423,7 +435,7 @@ export default function HomePage() {
                   {/* Percentage bar */}
                   <div className="h-1.5 bg-gray-800/50 rounded-full overflow-hidden">
                     <div
-                      className={`h-full text-emerald-400 bg-current transition-all duration-300`}
+                      className={`h-full ${getStatusBarColor(fridge.status)} transition-all duration-300`}
                       style={{ width: `${fridge.percentageFull}%` }}
                     />
                   </div>
@@ -462,8 +474,8 @@ export default function HomePage() {
                     key={category}
                     onClick={() => setActiveItemCategory(category)}
                     className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all duration-200 ${activeItemCategory === category
-                        ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 shadow-lg shadow-emerald-500/10'
-                        : 'text-gray-400 hover:bg-[#1D1D1D] hover:text-white border border-transparent'
+                      ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 shadow-lg shadow-emerald-500/10'
+                      : 'text-gray-400 hover:bg-[#1D1D1D] hover:text-white border border-transparent'
                       }`}
                   >
                     {category}
