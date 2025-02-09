@@ -222,7 +222,7 @@ export default function HomePage() {
   return (
     <div className="h-screen w-full relative bg-[#111111]">
       {/* Header - Fixed on mobile, hidden on desktop */}
-      <div className="fixed top-0 inset-x-0 z-20 bg-gradient-to-b from-[#111111]/50 to-transparent backdrop-blur-sm md:hidden">
+      <div className="fixed top-0 inset-x-0 z-20 bg-gradient-to-b from-[#111111]/50 to-transparent backdrop-blur-sm rounded-b-2xl md:hidden">
         <div className="p-4 space-y-4">
           {/* Top Bar with Logo and Actions */}
           <div className="flex items-center justify-between">
@@ -325,7 +325,7 @@ export default function HomePage() {
                 <div
                   key={fridge.id}
                   onClick={() => handleFridgeClick(fridge)}
-                  className="group p-4 rounded-2xl hover:bg-[#1D1D1D] transition-shadow duration-200 cursor-pointer border border-gray-800/50 hover:border-emerald-500/20 hover:shadow-lg hover:shadow-emerald-500/5"
+                  className="group p-4 rounded-2xl transition-shadow duration-200 cursor-pointer border border-gray-800/50 hover:bg-[#B0E0E6] hover:border-[#B0E0E6]/20 hover:shadow-lg hover:shadow-[#B0E0E6]/5"
                 >
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
@@ -364,7 +364,7 @@ export default function HomePage() {
 
       {/* Mobile Bottom Sheet */}
       <div
-        className={`fixed inset-x-0 bg-[#111111]/95 backdrop-blur-md shadow-2xl z-10 transition-all duration-300 ease-in-out touch-pan-y md:hidden
+        className={`fixed inset-x-0 bg-[#111111]/95 backdrop-blur-md shadow-2xl z-10 transition-all duration-300 ease-in-out touch-pan-y md:hidden rounded-t-2xl
           ${sheetPosition === 'full' ? 'h-[80%] bottom-0' : 'h-[20%] bottom-0'}`}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
@@ -374,7 +374,6 @@ export default function HomePage() {
         <div
           className="w-full h-8 flex items-center justify-center cursor-pointer"
           onClick={() => setSheetPosition(sheetPosition === 'full' ? 'closed' : 'full')}
-
         >
           <div className="w-12 h-1 bg-gray-600 rounded-full"></div>
         </div>
@@ -504,7 +503,7 @@ export default function HomePage() {
                           <span className="text-gray-400">Added {item.addedAt}</span>
                         </div>
                       </div>
-                      <span className="px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                      <span className="px-3 py-1 rounded-full text-xs font-medium bg-sky-500/10 text-sky-400 border border-sky-400/20">
                         {item.category.charAt(0).toUpperCase() + item.category.slice(1)}
                       </span>
                     </div>
