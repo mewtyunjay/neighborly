@@ -147,7 +147,8 @@ function HomePage() {
       handleMarkerClick={(id) => {
         const fridge = fridges.find(f => f.id === id);
         if (fridge) {
-          handleFridgeClick(fridge);
+          if (fridge.status.toLowerCase() !== 'unavailable')
+            handleFridgeClick(fridge);
         }
       }}
     />
@@ -285,9 +286,9 @@ function HomePage() {
         },
         body: JSON.stringify({ longitude, latitude }),
       });
-  
+
       const data = await response.json();
-  
+
       const mappedFridges: FridgeLocation[] = data.map((fridge: any) => ({
         id: fridge._id,
         name: fridge.name,
@@ -304,7 +305,7 @@ function HomePage() {
           category: 'food'
         }))
       }));
-  
+
       setFridges(mappedFridges);
     } catch (error) {
       console.error("Error loading fridges:", error);
@@ -468,15 +469,15 @@ function HomePage() {
               {filteredFridges.map((fridge) => (
                 <div
                   key={fridge.id}
-                  onClick={() => handleFridgeClick(fridge)}
-                  className="group p-4 rounded-2xl transition-shadow duration-200 cursor-pointer border border-gray-800/50  hover:border-[#B0E0E6]/20 hover:shadow-lg hover:shadow-[#B0E0E6]/5"
+                  onClick={fridge.status.toLowerCase() !== 'unavailable' ? () => handleFridgeClick(fridge) : undefined}
+                  className="group p-4 rounded-2xl transition-shadow duration-200 cursor-pointer border border-gray-800/50 hover:border-[#B0E0E6]/20 hover:shadow-lg hover:shadow-[#B0E0E6]/5"
                 >
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
                       <h3 className="text-gray-100 font-medium group-hover:text-white">
                         {fridge.name}
                       </h3>
-                      <span className={`text-xs font-medium text-[#e6e6e6]`}>
+                      <span className="text-xs font-medium text-[#e6e6e6]">
                         {fridge.percentageFull}% full
                       </span>
                     </div>
@@ -548,7 +549,7 @@ function HomePage() {
               {filteredFridges.map((fridge) => (
                 <div
                   key={fridge.id}
-                  onClick={() => handleFridgeClick(fridge)}
+                  onClick={fridge.status.toLowerCase() !== 'unavailable' ? () => handleFridgeClick(fridge) : undefined}
                   className={`group p-3 rounded-2xl transition-shadow duration-200 cursor-pointer border ${selectedFridgeId === fridge.id
                     ? 'bg-[#1D1D1D] border-[#e6e6e6]/50 shadow-lg shadow-[#e6e6e6]/10'
                     : 'hover:bg-[#1D1D1D] border-gray-800/50 hover:border-[#e6e6e6]/20 hover:shadow-lg hover:shadow-[#e6e6e6]/5'
@@ -687,16 +688,16 @@ function HomePage() {
 
       {/* Add Item Modal */}
       <AddItemModal
-      isOpen={isAddItemModalOpen}
-      onClose={() => {
-        setIsAddItemModalOpen(false);
-        if (userPos) {
-          loadFridges(userPos[0], userPos[1]);
-        }
-      }}
-      fridges={availableFridges}
-      user={{ name: session?.user?.name || '', email: session?.user?.email || '', id: session?.user?.id || '' }}
-    />
+        isOpen={isAddItemModalOpen}
+        onClose={() => {
+          setIsAddItemModalOpen(false);
+          if (userPos) {
+            loadFridges(userPos[0], userPos[1]);
+          }
+        }}
+        fridges={availableFridges}
+        user={{ name: session?.user?.name || '', email: session?.user?.email || '', id: session?.user?.id || '' }}
+      />
     </div>
   );
 }
