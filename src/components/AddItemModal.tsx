@@ -29,6 +29,20 @@ export default function AddItemModal({ isOpen, onClose, fridges }: AddItemModalP
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const webcamRef = useRef<Webcam | null>(null);
 
+  // Reset states when modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      setIsCameraActive(false);
+      setCapturedImage(null);
+      setIsAnalyzing(false);
+      setFormData({
+        name: '',
+        description: '',
+        quantity: '1',
+      });
+    }
+  }, [isOpen]);
+
   // Auto-select nearest available fridge
   useEffect(() => {
     if (isOpen && fridges.length > 0) {
