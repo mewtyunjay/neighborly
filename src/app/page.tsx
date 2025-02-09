@@ -34,9 +34,11 @@ export default function HomePage() {
   const [startY, setStartY] = useState(0);
   const [selectedFridgeId, setSelectedFridgeId] = useState<string | null>(null);
 
+
   const filters = ['All', 'Available', 'Upcoming', 'Unavailable'];
   const itemCategories = ['All', 'Medicine', 'Utilities', 'Food'];
 
+  // GET API Demo data from API
   const demoFridges: FridgeLocation[] = [
     { 
       id: '1',
@@ -138,19 +140,19 @@ export default function HomePage() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'All':
-        return 'bg-cyan-400 text-cyan-400 border-cyan-400';
+        return 'cyan';
       case 'available':
         return 'bg-emerald-400/10 text-emerald-400 border-emerald-400/20';
       case 'Available':
-        return 'bg-emerald-400/10 text-emerald-400 border-emerald-400/20';
+        return 'emerald';
       case 'upcoming':
         return 'bg-yellow-400/10 text-yellow-400 border-yellow-400/20';
       case 'Upcoming':
-          return 'bg-yellow-400/10 text-yellow-400 border-yellow-400/20';
+          return 'yellow';
       case 'unavailable':
         return 'bg-red-400/10 text-red-400 border-red-400/20';
       case 'Unavailable':
-          return 'bg-red-400/10 text-red-400 border-red-400/20';
+          return 'red';
       default:
         return 'bg-gray-400/10 text-gray-400 border-gray-400/20';
     }
@@ -357,7 +359,7 @@ export default function HomePage() {
                   onClick={() => setActiveFilter(filter)}
                   className={`px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-all duration-200 ${
                     activeFilter === filter
-                      ? `bg-${getStatusColor(filter)}-500/20 text-red-400 border border-emerald-500/20 shadow-lg shadow-emerald-500/10`
+                      ? `bg-${getStatusColor(filter)}-500/20 text-${getStatusColor(filter)}-400 border border-${getStatusColor(filter)}-500/20 shadow-lg shadow-${getStatusColor(filter)}-500/10`
                       : 'text-gray-400 hover:bg-[#1D1D1D] hover:text-white border border-transparent'
                   }`}
                 >
