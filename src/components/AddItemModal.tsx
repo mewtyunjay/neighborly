@@ -83,10 +83,10 @@ export default function AddItemModal({ isOpen, onClose, fridges }: AddItemModalP
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedFridge || parseInt(formData.quantity) === 0) return;
-    
+
     // Handle form submission
-    console.log({ 
-      fridge: selectedFridge, 
+    console.log({
+      fridge: selectedFridge,
       item: {
         ...formData,
         quantity: parseInt(formData.quantity)
@@ -112,7 +112,7 @@ export default function AddItemModal({ isOpen, onClose, fridges }: AddItemModalP
         <div className="p-6 border-b border-gray-800">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold text-white">Add Item</h2>
-            <button 
+            <button
               onClick={onClose}
               className="text-gray-400 hover:text-white transition-colors"
             >
