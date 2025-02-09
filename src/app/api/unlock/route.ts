@@ -5,9 +5,7 @@ import { ObjectId } from 'mongodb';
 export async function POST(request: Request) {
     try {
         const body = await request.json();
-        console.log(request)
         const fridgeId = body.fridgeId;
-        console.log(fridgeId);
         if (!fridgeId) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
         }

@@ -1,8 +1,6 @@
 "use client";
 import React from "react";
-import { Button } from "./ui/button";
 import { signOut } from "next-auth/react";
-import Image from "next/image";
 
 const SignOut = () => {
   const handleSignOut = () => {

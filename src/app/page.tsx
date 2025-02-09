@@ -3,8 +3,10 @@
 import { useEffect, useState, useMemo, useRef } from 'react';
 import Map from '@/components/Map';
 import AddItemModal from '@/components/AddItemModal';
-import { getUserSession } from '@/lib/session';
+// import { getUserSession } from '@/lib/session';
 import { redirect } from 'next/navigation';
+import { useSession } from "next-auth/react"
+import Profile from '@/components/Profile';
 
 interface FridgeItem {
   id: string;
@@ -33,17 +35,12 @@ interface UnlockedFridgeState {
   }
 }
 
-async function checkLogin() {
-  const user = await getUserSession()
-  if (!user) {
-    redirect('/login');
-  }
-};
 
 function HomePage() {
-  useEffect(() => {
-    checkLogin();
-  }, []);
+  // useEffect(() => {
+  //   checkLogin();
+  // }, []);
+  const { data: session } = useSession();
 
   const mapRef = useRef<any>(null);
   const [userPos, setUserPos] = useState<[number, number] | null>(null);
@@ -57,6 +54,7 @@ function HomePage() {
   const [selectedFridgeId, setSelectedFridgeId] = useState<string | null>(null);
   const [isAddItemModalOpen, setIsAddItemModalOpen] = useState(false);
   const [fridges, setFridges] = useState<FridgeLocation[]>([]);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   const filters = ['All', 'Available', 'Upcoming', 'Unavailable'];
   const itemCategories = ['All', 'Medicine', 'Utilities', 'Food'];
@@ -84,16 +82,16 @@ function HomePage() {
           },
           body: JSON.stringify({ longitude, latitude }),
         });
-        
+
         const data = await response.json();
-        
+
         const mappedFridges: FridgeLocation[] = data.map((fridge: any) => ({
-          id: fridge.id,
+          id: fridge._id,
           name: fridge.name,
           address: fridge.address,
-          distance: "0.5 km",
+          distance: "0.5 km", // TODO: Calculate distance
           status: fridge.isLocked ? 'unavailable' : 'available',
-          coordinates: [fridge.longitude, fridge.latitude],
+          coordinates: fridge.location.coordinates,
           percentageFull: 75,
           items: fridge.items.map((item: any) => ({
             id: item.id,
@@ -115,6 +113,7 @@ function HomePage() {
     }
   }, [userPos]);
 
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'All':
@@ -135,30 +134,42 @@ function HomePage() {
         return 'bg-gray-400/10 text-gray-400 border-gray-400/20';
     }
   };
+  function getStatusBarColor(status: string) {
+    switch (status.toLowerCase()) {
+      case 'available':
+        return 'bg-emerald-400';
+      case 'upcoming':
+        return 'bg-yellow-400';
+      case 'unavailable':
+        return 'bg-red-400';
+      default:
+        return 'bg-gray-400';
+    }
+  }
 
   const filteredFridges = useMemo(() => {
     let filtered = fridges;
-    
+
     if (activeFilter !== 'All') {
-      filtered = filtered.filter(fridge => 
+      filtered = filtered.filter(fridge =>
         fridge.status.toLowerCase() === activeFilter.toLowerCase()
       );
     }
-    
+
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(fridge => 
+      filtered = filtered.filter(fridge =>
         fridge.name.toLowerCase().includes(query) ||
         fridge.address.toLowerCase().includes(query)
       );
     }
-    
+
     return filtered;
   }, [fridges, activeFilter, searchQuery]);
 
   const MapComponent = useMemo(() => (
-    <Map 
-      userPos={userPos || undefined} 
+    <Map
+      userPos={userPos || undefined}
       locations={fridges.map(fridge => ({
         coordinates: fridge.coordinates,
         status: fridge.status,
@@ -229,11 +240,11 @@ function HomePage() {
     const R = 3959; //
     const dLat = (lat2 - lat1) * Math.PI / 180;
     const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a = 
-      Math.sin(dLat/2) * Math.sin(dLat/2) +
-      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
-      Math.sin(dLon/2) * Math.sin(dLon/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c; // Distance in miles
   };
 
@@ -241,7 +252,7 @@ function HomePage() {
 
   const handleUnlock = async (fridgeId: string) => {
     if (!userPos) return;
-    
+
     try {
       const response = await fetch('/api/unlock', {
         method: 'POST',
@@ -258,7 +269,7 @@ function HomePage() {
             userPos[1], userPos[0],
             fridge.coordinates[1], fridge.coordinates[0]
           );
-          
+
           if (distance <= 1) {
             setUnlockedFridges(prev => ({
               ...prev,
@@ -355,11 +366,21 @@ function HomePage() {
               </button>
 
               {/* Profile Icon */}
-              <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center">
+
+              <button
+                onClick={() => {
+                  if (session) {
+                    setIsProfileOpen(true);
+                  } else {
+                    redirect('/login');
+                  }
+                }}
+                className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center hover:bg-gray-600 transition-colors"
+              >
                 <svg className="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
-              </div>
+              </button>
             </div>
           </div>
 
@@ -578,15 +599,14 @@ function HomePage() {
                   <button
                     onClick={() => handleUnlock(selectedFridge.id)}
                     disabled={unlockedFridges[selectedFridge.id]?.isUnlocked}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                      unlockedFridges[selectedFridge.id]?.isUnlocked 
-                        ? 'bg-emerald-500/20 text-emerald-400'
-                        : 'bg-blue-500 hover:bg-blue-600 text-white'
-                    }`}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${unlockedFridges[selectedFridge.id]?.isUnlocked
+                      ? 'bg-emerald-500/20 text-emerald-400'
+                      : 'bg-blue-500 hover:bg-blue-600 text-white'
+                      }`}
                   >
                     {unlockedFridges[selectedFridge.id]?.isUnlocked ? 'Unlocked' : 'Unlock Fridge'}
                   </button>
-                  <button 
+                  <button
                     onClick={() => {
                       if (selectedFridge && unlockedFridges[selectedFridge.id]?.isUnlocked) {
                         handleLockFridge(selectedFridge.id);
@@ -627,18 +647,18 @@ function HomePage() {
                         <span className="px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                           {item.category.charAt(0).toUpperCase() + item.category.slice(1)}
                         </span>
-                        {unlockedFridges[selectedFridge.id]?.isUnlocked && 
+                        {unlockedFridges[selectedFridge.id]?.isUnlocked &&
                           unlockedFridges[selectedFridge.id]?.isWithinRange && (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleCheckout(item.id);
-                            }}
-                            className="px-3 py-1 rounded-lg text-sm font-medium bg-emerald-500 hover:bg-emerald-600 text-white transition-colors"
-                          >
-                            Checkout
-                          </button>
-                        )}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleCheckout(item.id);
+                              }}
+                              className="px-3 py-1 rounded-lg text-sm font-medium bg-emerald-500 hover:bg-emerald-600 text-white transition-colors"
+                            >
+                              Checkout
+                            </button>
+                          )}
                       </div>
                     </div>
                   ))}
@@ -648,15 +668,32 @@ function HomePage() {
           </div>
         </div>
       )}
+      {session && (
+        <>
+          {console.log('User is authenticated')}
+          {session.user && (
+            <Profile
+              isOpen={isProfileOpen}
+              onClose={() => setIsProfileOpen(false)}
+              user={{ name: session.user?.name || '', email: session.user?.email || '' }}
+            />
+          )}
+          </>
+        )}
 
-      {/* Add Item Modal */}
-      <AddItemModal
-        isOpen={isAddItemModalOpen}
-        onClose={() => setIsAddItemModalOpen(false)}
-        fridges={fridges}
-      />
-    </div>
-  );
+
+
+
+
+
+          {/* Add Item Modal */}
+          <AddItemModal
+            isOpen={isAddItemModalOpen}
+            onClose={() => setIsAddItemModalOpen(false)}
+            fridges={fridges}
+          />
+        </div>
+      );
 }
 
-export default HomePage;
+      export default HomePage;
