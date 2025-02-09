@@ -262,7 +262,7 @@ export default function HomePage() {
               placeholder="Search fridges..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-4 py-2 bg-[#1D1D1D] rounded-2xl text-gray-100 placeholder-gray-500 border border-[#e6e6e6] focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 focus:outline-none transition-colors text-sm"
+              className="w-full px-4 py-2 bg-[#1D1D1D] rounded-2xl text-gray-100 placeholder-gray-500 border border-[#e6e6e6] focus:border-sky-500/50 focus:ring-1 focus:ring-sky-500/50 focus:outline-none transition-colors text-sm"
             />
             <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
