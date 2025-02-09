@@ -3,21 +3,10 @@
 import React, { useRef, useEffect, useState } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
-
-interface LocationData {
-  id: string;
-  name: string;
-  coordinates: [number, number];
-  status: 'available' | 'unavailable' | 'upcoming';
-  percentageFull?: number;
-  isSelected: boolean;
-}
-
-interface MapProps {
-  userPos?: [number, number];
-  locations: LocationData[];
-  handleMarkerClick: (id: string) => void;
-}
+import { MapProps } from "./map/types";
+import { createLocationMarker } from "./map/LocationMarker";
+import { createUserLocationMarker } from "./map/UserLocationMarker";
+import { MapControls } from "./map/MapControls";
 
 export default function Map({ userPos, locations, handleMarkerClick }: MapProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
@@ -26,29 +15,14 @@ export default function Map({ userPos, locations, handleMarkerClick }: MapProps)
 
   const [center, setCenter] = useState<[number, number]>([-73.9971, 40.7308]); // Default to NYU coordinates
   const [zoom, setZoom] = useState(14);
-  const [pitch, setPitch] = useState(45);
 
   const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
 
-  // Update center when user position is available
   useEffect(() => {
     if (userPos) {
       setCenter(userPos);
     }
   }, [userPos]);
-
-  const getMarkerColor = (status: string) => {
-    switch (status) {
-      case 'available':
-        return 'bg-emerald-400 shadow-emerald-500/50';
-      case 'upcoming':
-        return 'bg-yellow-400 shadow-yellow-500/50';
-      case 'unavailable':
-        return 'bg-red-400 shadow-red-500/50';
-      default:
-        return 'bg-gray-400 shadow-gray-500/50';
-    }
-  };
 
   const handleCurrentLocation = () => {
     if (navigator.geolocation) {
@@ -67,12 +41,10 @@ export default function Map({ userPos, locations, handleMarkerClick }: MapProps)
             });
 
             if (userPos) {
-              const userMarker = document.createElement("div");
-              userMarker.className = "h-3 w-3 border-2 border-white rounded-full bg-blue-400 shadow-xl shadow-blue-500/50 animate-pulse";
-
-              new mapboxgl.Marker(userMarker)
-                .setLngLat(newPos)
-                .addTo(map.current);
+              createUserLocationMarker({
+                position: newPos,
+                map: map.current
+              });
             }
           }
         },
@@ -105,13 +77,68 @@ export default function Map({ userPos, locations, handleMarkerClick }: MapProps)
         style: "mapbox://styles/mapbox/dark-v11",
         center: center,
         zoom: zoom,
-        pitch: pitch,
+        pitch: 60,
+        bearing: 25,
+        antialias: true
       });
 
-      // Add navigation controls
+      map.current.on('load', () => {
+        if (!map.current) return;
+
+        map.current.setTerrain({ source: 'mapbox-dem', exaggeration: 1.5 });
+
+        map.current.addSource('mapbox-dem', {
+          'type': 'raster-dem',
+          'url': 'mapbox://mapbox.mapbox-terrain-dem-v1',
+          'tileSize': 512,
+          'maxzoom': 14
+        });
+
+        map.current.addLayer({
+          'id': 'sky',
+          'type': 'sky',
+          'paint': {
+            'sky-type': 'atmosphere',
+            'sky-atmosphere-sun': [0.0, 90.0],
+            'sky-atmosphere-sun-intensity': 15
+          }
+        });
+
+        map.current.addLayer({
+          'id': '3d-buildings',
+          'source': 'composite',
+          'source-layer': 'building',
+          'filter': ['==', 'extrude', 'true'],
+          'type': 'fill-extrusion',
+          'minzoom': 14,
+          'paint': {
+            'fill-extrusion-color': '#111111',
+            'fill-extrusion-height': [
+              'interpolate',
+              ['linear'],
+              ['zoom'],
+              15,
+              0,
+              15.05,
+              ['get', 'height']
+            ],
+            'fill-extrusion-base': [
+              'interpolate',
+              ['linear'],
+              ['zoom'],
+              15,
+              0,
+              15.05,
+              ['get', 'min_height']
+            ],
+            'fill-extrusion-opacity': 0.6,
+            'fill-extrusion-ambient-occlusion-intensity': 0.5
+          }
+        });
+      });
+
       map.current.addControl(new mapboxgl.NavigationControl(), 'bottom-right');
     } else {
-      // Update center if map exists
       map.current.setCenter(center);
     }
 
@@ -120,52 +147,28 @@ export default function Map({ userPos, locations, handleMarkerClick }: MapProps)
     markers.current = {};
 
     // Add location markers
-    locations.forEach((location) => {
-      const el = document.createElement("div");
-      el.className = `h-4 w-4 rounded-full shadow-xl transition-all duration-300 ${getMarkerColor(location.status)} ${location.isSelected ? 'scale-125 border-emerald-400' : ''}`;
+    if (map.current) {
+      locations.forEach((location) => {
+        markers.current[location.id] = createLocationMarker({
+          location,
+          map: map.current!,
+          handleMarkerClick
+        });
+      });
 
-      // Create popup
-      const popup = new mapboxgl.Popup({ offset: 25 })
-        .setHTML(`
-          <div class="p-2">
-            <h3 class="font-medium">${location.name}</h3>
-            <div class="flex items-center gap-2 mt-1">
-              <span class="text-sm capitalize">${location.status}</span>
-              ${location.percentageFull !== undefined ? 
-                `<span class="text-sm">${location.percentageFull}% full</span>` 
-                : ''}
-            </div>
-          </div>
-        `);
-
-      if (map.current && location.coordinates) {
-        const marker = new mapboxgl.Marker(el)
-          .setLngLat(location.coordinates)
-          .setPopup(popup)
-          .addTo(map.current);
-
-        markers.current[location.id] = marker;
-
-        if (handleMarkerClick) {
-          el.addEventListener("click", () => handleMarkerClick(location.id));
-        }
+      // Add user marker if available
+      if (userPos) {
+        createUserLocationMarker({
+          position: userPos,
+          map: map.current
+        });
       }
-    });
-
-    // Add user marker if available
-    if (userPos) {
-      const userMarker = document.createElement("div");
-      userMarker.className = "h-3 w-3 border-2 border-white rounded-full bg-blue-400 shadow-xl shadow-blue-500/50 animate-pulse";
-
-      new mapboxgl.Marker(userMarker)
-        .setLngLat(userPos)
-        .addTo(map.current);
     }
 
     return () => {
       Object.values(markers.current).forEach(marker => marker.remove());
     };
-  }, [locations, userPos, mapboxToken, center]);
+  }, [locations, userPos, mapboxToken, center, zoom]);
 
   return (
     <div className="h-screen w-full relative">
@@ -174,31 +177,10 @@ export default function Map({ userPos, locations, handleMarkerClick }: MapProps)
         ref={mapContainer}
         className="h-full w-full rounded-lg"
       />
-      <button
-        onClick={handleCurrentLocation}
-        className="absolute bottom-20 right-4 bg-white p-2 rounded-full shadow-lg hover:bg-gray-100 transition-colors"
-        aria-label="Go to current location"
-      >
-        <svg 
-          xmlns="http://www.w3.org/2000/svg" 
-          fill="none" 
-          viewBox="0 0 24 24" 
-          strokeWidth={1.5} 
-          stroke="currentColor" 
-          className="w-6 h-6"
-        >
-          <path 
-            strokeLinecap="round" 
-            strokeLinejoin="round" 
-            d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" 
-          />
-          <path 
-            strokeLinecap="round" 
-            strokeLinejoin="round" 
-            d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" 
-          />
-        </svg>
-      </button>
+      <MapControls 
+        map={map.current}
+        onLocationButtonClick={handleCurrentLocation}
+      />
     </div>
   );
 } 
