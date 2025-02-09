@@ -40,7 +40,7 @@ export default function HomePage() {
   const itemCategories = ['All', 'Medicine', 'Utilities', 'Food'];
 
   const demoFridges: FridgeLocation[] = [
-    { 
+    {
       id: '1',
       name: 'MetroTech Fridge',
       address: '6 MetroTech Center, Brooklyn',
@@ -55,7 +55,7 @@ export default function HomePage() {
         { id: '5', name: 'Power Bank', category: 'utilities', quantity: 3, addedAt: '5 hours ago' },
       ]
     },
-    { 
+    {
       id: '2',
       name: 'DUMBO Fridge',
       address: '45 Water Street, Brooklyn',
@@ -68,7 +68,7 @@ export default function HomePage() {
         { id: '7', name: 'Canned Food', category: 'food', quantity: 15, addedAt: '6 hours ago' },
       ]
     },
-    { 
+    {
       id: '3',
       name: 'Downtown Brooklyn Fridge',
       address: '345 Jay Street, Brooklyn',
@@ -83,29 +83,29 @@ export default function HomePage() {
   // Memoize the filtered fridges
   const filteredFridges = useMemo(() => {
     let filtered = demoFridges;
-    
+
     if (activeFilter !== 'All') {
-      filtered = filtered.filter(fridge => 
+      filtered = filtered.filter(fridge =>
         fridge.status.toLowerCase() === activeFilter.toLowerCase()
       );
     }
-    
+
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(fridge => 
+      filtered = filtered.filter(fridge =>
         fridge.name.toLowerCase().includes(query) ||
         fridge.address.toLowerCase().includes(query)
       );
     }
-    
+
     return filtered;
   }, [activeFilter, searchQuery]);
 
   // Memoize the map component with fridge locations
   const MapComponent = useMemo(() => (
 
-    <Map 
-      userPos={userPos || undefined} 
+    <Map
+      userPos={userPos || undefined}
       locations={demoFridges.map(fridge => ({
         coordinates: fridge.coordinates,
         status: fridge.status,
@@ -121,7 +121,7 @@ export default function HomePage() {
         }
       }}
     />
-    
+
   ), [userPos, demoFridges, selectedFridgeId]);
 
   useEffect(() => {
@@ -140,7 +140,7 @@ export default function HomePage() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'All':
-        return 'bg-cyan-400 text-cyan-400 border-cyan-400';
+        return 'bg-[#e6e6e6] text-[#e6e6e6] border-[#e6e6e6]';
       case 'available':
         return 'bg-emerald-400/10 text-emerald-400 border-emerald-400/20';
       case 'Available':
@@ -148,11 +148,11 @@ export default function HomePage() {
       case 'upcoming':
         return 'bg-yellow-400/10 text-yellow-400 border-yellow-400/20';
       case 'Upcoming':
-          return 'bg-yellow-400/10 text-yellow-400 border-yellow-400/20';
+        return 'bg-yellow-400/10 text-yellow-400 border-yellow-400/20';
       case 'unavailable':
         return 'bg-red-400/10 text-red-400 border-red-400/20';
       case 'Unavailable':
-          return 'bg-red-400/10 text-red-400 border-red-400/20';
+        return 'bg-red-400/10 text-red-400 border-red-400/20';
       default:
         return 'bg-gray-400/10 text-gray-400 border-gray-400/20';
     }
@@ -161,10 +161,10 @@ export default function HomePage() {
 
   const filteredItems = useMemo(() => {
     if (!selectedFridge) return [];
-    
+
     if (activeItemCategory === 'All') return selectedFridge.items;
-    
-    return selectedFridge.items.filter(item => 
+
+    return selectedFridge.items.filter(item =>
       item.category.toLowerCase() === activeItemCategory.toLowerCase()
     );
   }, [selectedFridge, activeItemCategory]);
@@ -176,10 +176,10 @@ export default function HomePage() {
 
   const handleTouchMove = (e: React.TouchEvent) => {
     if (!isDragging) return;
-    
+
     const currentY = e.touches[0].clientY;
     const diff = startY - currentY;
-    
+
     if (diff > 50 && sheetPosition === 'full') {
       setSheetPosition('closed');
     } else if (diff < -50 && sheetPosition === 'closed') {
@@ -187,7 +187,7 @@ export default function HomePage() {
     }
 
 
-    
+
     setStartY(currentY);
   };
 
@@ -216,19 +216,19 @@ export default function HomePage() {
           <div className="flex items-center justify-between">
             {/* Logo on the left */}
             <div className="flex items-center">
-              <h1 className="text-2xl font-bold text-emerald-400">Neighbourly</h1>
+              <h1 className="text-2xl font-bold text-[#e6e6e6]">Neighbourly</h1>
             </div>
-            
+
             {/* Actions on the right */}
             <div className="flex items-center space-x-4">
               {/* Add Item Button */}
-              <button 
+              <button
                 onClick={() => setIsAddItemModalOpen(true)}
-                className="px-3 py-1.5 bg-emerald-500 text-white rounded-lg text-sm font-medium hover:bg-emerald-600 transition-colors"
+                className="px-3 py-1.5 bg-[#e6e6e6] text-black rounded-lg text-sm font-medium hover:bg-gray-300 transition-colors"
               >
                 Add Item
               </button>
-              
+
               {/* Profile Icon */}
               <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center">
                 <svg className="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -260,7 +260,7 @@ export default function HomePage() {
       <div className="absolute inset-0 md:relative md:h-screen">
         {MapComponent}
       </div>
-      
+
       {/* Desktop Sidebar */}
       <div className="hidden md:block absolute top-0 left-0 w-1/2 h-full bg-[#111111]/95 backdrop-blur-md shadow-2xl">
         <div className="h-full overflow-hidden flex flex-col">
@@ -268,7 +268,7 @@ export default function HomePage() {
           <div className="flex-none p-8 pb-4">
             {/* Logo Section */}
             <div className="flex flex-col items-center mb-6">
-              <h1 className="text-4xl font-bold text-emerald-400 mb-2">Neighbourly</h1>
+              <h1 className="text-4xl font-bold text-[#e6e6e6] mb-2">Neighbourly</h1>
               <p className="text-gray-400 text-sm">Connect with your community</p>
             </div>
 
@@ -294,11 +294,10 @@ export default function HomePage() {
                 <button
                   key={filter}
                   onClick={() => setActiveFilter(filter)}
-                  className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
-                    activeFilter === filter
-                      ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 shadow-lg shadow-emerald-500/10'
-                      : 'text-gray-400 hover:bg-[#1D1D1D] hover:text-white border border-transparent'
-                  }`}
+                  className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${activeFilter === filter
+                    ? 'bg-[#e6e6e6]-500/20 text-[#e6e6e6]-400 border border-[#e6e6e6]-500/20 shadow-lg shadow-[#e6e6e6]-500/10'
+                    : 'text-gray-400 hover:bg-[#1D1D1D] hover:text-white border border-transparent'
+                    }`}
                 >
                   {filter}
                 </button>
@@ -321,7 +320,7 @@ export default function HomePage() {
                       <h3 className="text-gray-100 font-medium group-hover:text-white">
                         {fridge.name}
                       </h3>
-                      <span className={`text-sm font-medium text-emerald-400`}>
+                      <span className={`text-sm font-medium text-[#e6e6e6]-400`}>
                         {fridge.percentageFull}% full
                       </span>
                     </div>
@@ -339,7 +338,7 @@ export default function HomePage() {
                   </div>
                   {/* Percentage bar */}
                   <div className="h-1.5 bg-gray-800/50 rounded-full overflow-hidden">
-                    <div 
+                    <div
                       className={`h-full text bg-current transition-all duration-300`}
                       style={{ width: `${fridge.percentageFull}%` }}
                     />
@@ -352,15 +351,15 @@ export default function HomePage() {
       </div>
 
       {/* Mobile Bottom Sheet */}
-      <div 
-         className={`fixed inset-x-0 bg-[#111111]/95 backdrop-blur-md shadow-2xl z-10 transition-all duration-300 ease-in-out touch-pan-y md:hidden
+      <div
+        className={`fixed inset-x-0 bg-[#111111]/95 backdrop-blur-md shadow-2xl z-10 transition-all duration-300 ease-in-out touch-pan-y md:hidden
           ${sheetPosition === 'full' ? 'h-[80%] bottom-0' : 'h-[20%] bottom-0'}`}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
         {/* Drag Handle */}
-        <div 
+        <div
           className="w-full h-8 flex items-center justify-center cursor-pointer"
           onClick={() => setSheetPosition(sheetPosition === 'full' ? 'closed' : 'full')}
 
@@ -377,11 +376,10 @@ export default function HomePage() {
                 <button
                   key={filter}
                   onClick={() => setActiveFilter(filter)}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-all duration-200 ${
-                    activeFilter === filter
-                      ? `bg-${getStatusColor(filter)}-500/20 text-${getStatusColor(filter)}-400 border border-${getStatusColor(filter)}-500/20 shadow-lg shadow-${getStatusColor(filter)}-500/10`
-                      : 'text-gray-400 hover:bg-[#1D1D1D] hover:text-white border border-transparent'
-                  }`}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-all duration-200 ${activeFilter === filter
+                    ? `bg-${getStatusColor(filter)}-500/20 text-${getStatusColor(filter)}-400 border border-${getStatusColor(filter)}-500/20 shadow-lg shadow-${getStatusColor(filter)}-500/10`
+                    : 'text-gray-400 hover:bg-[#1D1D1D] hover:text-white border border-transparent'
+                    }`}
                 >
                   {filter}
                 </button>
@@ -396,11 +394,10 @@ export default function HomePage() {
                 <div
                   key={fridge.id}
                   onClick={() => handleFridgeClick(fridge)}
-                  className={`group p-3 rounded-xl transition-all duration-200 cursor-pointer border ${
-                    selectedFridgeId === fridge.id 
-                      ? 'bg-[#1D1D1D] border-emerald-500/50 shadow-lg shadow-emerald-500/10' 
+                  className={`group p-3 rounded-xl transition-all duration-200 cursor-pointer border ${selectedFridgeId === fridge.id
+                      ? 'bg-[#1D1D1D] border-emerald-500/50 shadow-lg shadow-emerald-500/10'
                       : 'hover:bg-[#1D1D1D] border-gray-800/50 hover:border-emerald-500/20 hover:shadow-lg hover:shadow-emerald-500/5'
-                  }`}
+                    }`}
                 >
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-3">
@@ -425,7 +422,7 @@ export default function HomePage() {
                   </div>
                   {/* Percentage bar */}
                   <div className="h-1.5 bg-gray-800/50 rounded-full overflow-hidden">
-                    <div 
+                    <div
                       className={`h-full text-emerald-400 bg-current transition-all duration-300`}
                       style={{ width: `${fridge.percentageFull}%` }}
                     />
@@ -445,7 +442,7 @@ export default function HomePage() {
             <div className="p-6 border-b border-gray-800">
               <div className="flex items-center justify-between mb-2">
                 <h2 className="text-xl font-semibold text-white">{selectedFridge.name}</h2>
-                <button 
+                <button
                   onClick={() => setSelectedFridge(null)}
                   className="text-gray-400 hover:text-white transition-colors"
                 >
@@ -464,11 +461,10 @@ export default function HomePage() {
                   <button
                     key={category}
                     onClick={() => setActiveItemCategory(category)}
-                    className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all duration-200 ${
-                      activeItemCategory === category
+                    className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all duration-200 ${activeItemCategory === category
                         ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 shadow-lg shadow-emerald-500/10'
                         : 'text-gray-400 hover:bg-[#1D1D1D] hover:text-white border border-transparent'
-                    }`}
+                      }`}
                   >
                     {category}
                   </button>
@@ -485,7 +481,7 @@ export default function HomePage() {
               ) : (
                 <div className="space-y-4">
                   {filteredItems.map((item) => (
-                    <div 
+                    <div
                       key={item.id}
                       className="flex items-center justify-between p-4 rounded-xl bg-gray-800/50 border border-gray-700"
                     >
