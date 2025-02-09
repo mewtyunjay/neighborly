@@ -12,7 +12,7 @@ export async function POST(request: Request) {
         const name = body.name;
         const fridgeId = body.fridgeId;
         const quantity = parseInt(body.quantity);
-        const userId = body.userId || '';
+        const userId = body.userId;
         const photo = body.photo;
         if (!fridgeId || !quantity || !userId || !photo || !name) {
             return NextResponse.json({ success: false, error: 'Missing required fields' });
@@ -34,7 +34,7 @@ export async function POST(request: Request) {
         var result = await collection.insertOne(newItem);
 
         result = await db.collection("User").updateOne(
-            { email: body.email },
+            { _id: new ObjectId(userId) },
             {
                 $inc: { contributions: 1 },
                 $set: { updatedAt: new Date() }

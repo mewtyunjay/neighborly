@@ -75,46 +75,10 @@ function HomePage() {
   }, []);
 
   useEffect(() => {
-    const loadFridges = async (longitude: number, latitude: number) => {
-      try {
-        const response = await fetch('/api/load', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ longitude, latitude }),
-        });
-
-        const data = await response.json();
-
-        const mappedFridges: FridgeLocation[] = data.map((fridge: any) => ({
-          id: fridge._id,
-          name: fridge.name,
-          address: fridge.address,
-          distance: "0.5 km", // TODO: Calculate distance
-          status: fridge.isLocked ? 'available' : 'unavailable',
-          coordinates: fridge.location.coordinates,
-          percentageFull: 75,
-          items: fridge.items.map((item: any) => ({
-            id: item.id,
-            name: item.name,
-            quantity: item.quantity,
-            addedAt: new Date(item.createdAt).toLocaleString(),
-            category: 'food'
-          }))
-        }));
-
-        setFridges(mappedFridges);
-      } catch (error) {
-        console.error("Error loading fridges:", error);
-      }
-    };
-
     if (userPos) {
       loadFridges(userPos[0], userPos[1]);
     }
   }, [userPos]);
-
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -309,6 +273,41 @@ function HomePage() {
       }
     } catch (error) {
       console.error('Error locking fridge:', error);
+    }
+  };
+
+  const loadFridges = async (longitude: number, latitude: number) => {
+    try {
+      const response = await fetch('/api/load', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ longitude, latitude }),
+      });
+  
+      const data = await response.json();
+  
+      const mappedFridges: FridgeLocation[] = data.map((fridge: any) => ({
+        id: fridge._id,
+        name: fridge.name,
+        address: fridge.address,
+        distance: "0.5 km",
+        status: fridge.isLocked ? 'available' : 'unavailable',
+        coordinates: fridge.location.coordinates,
+        percentageFull: 75,
+        items: fridge.items.map((item: any) => ({
+          id: item.id,
+          name: item.name,
+          quantity: item.quantity,
+          addedAt: new Date(item.createdAt).toLocaleString(),
+          category: 'food'
+        }))
+      }));
+  
+      setFridges(mappedFridges);
+    } catch (error) {
+      console.error("Error loading fridges:", error);
     }
   };
 
@@ -688,11 +687,16 @@ function HomePage() {
 
       {/* Add Item Modal */}
       <AddItemModal
-        isOpen={isAddItemModalOpen}
-        onClose={() => setIsAddItemModalOpen(false)}
-        fridges={availableFridges}
-        user={{ name: session?.user?.name || '', email: session?.user?.email || '' }}
-      />
+      isOpen={isAddItemModalOpen}
+      onClose={() => {
+        setIsAddItemModalOpen(false);
+        if (userPos) {
+          loadFridges(userPos[0], userPos[1]);
+        }
+      }}
+      fridges={availableFridges}
+      user={{ name: session?.user?.name || '', email: session?.user?.email || '', id: session?.user?.id || '' }}
+    />
     </div>
   );
 }
