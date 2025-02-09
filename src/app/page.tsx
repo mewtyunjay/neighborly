@@ -313,7 +313,7 @@ function HomePage() {
     }
   };
 
-  const handleCheckout = async (itemId: string ) => {
+  const handleCheckout = async (itemId: string, fridgeId:string ) => {
     try {
       const response = await fetch('/api/checkout', {
         method: 'POST',
@@ -325,8 +325,10 @@ function HomePage() {
    
       if (response.ok) {
         if (userPos) {
-          loadFridges(userPos[0], userPos[1]);
+          
           setSelectedFridge(null);
+          handleLockFridge(fridgeId);
+          loadFridges(userPos[0], userPos[1]);
         }
       }
     } catch (error) {
@@ -652,7 +654,7 @@ function HomePage() {
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
-                                handleCheckout(item.id);
+                                handleCheckout(item.id, selectedFridge.id);
                               }}
                               className="px-3 py-1 rounded-lg text-sm font-medium bg-emerald-500 hover:bg-emerald-600 text-white transition-colors"
                             >
