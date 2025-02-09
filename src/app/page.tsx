@@ -29,7 +29,7 @@ export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFridge, setSelectedFridge] = useState<FridgeLocation | null>(null);
   const [activeItemCategory, setActiveItemCategory] = useState('All');
-  const [sheetPosition, setSheetPosition] = useState<'peek' | 'half' | 'full'>('peek');
+  const [sheetPosition, setSheetPosition] = useState<'closed' | 'full'>('full');
   const [isDragging, setIsDragging] = useState(false);
   const [startY, setStartY] = useState(0);
   const [selectedFridgeId, setSelectedFridgeId] = useState<string | null>(null);
@@ -101,6 +101,7 @@ export default function HomePage() {
 
   // Memoize the map component with fridge locations
   const MapComponent = useMemo(() => (
+
     <Map 
       userPos={userPos || undefined} 
       locations={demoFridges.map(fridge => ({
@@ -118,6 +119,7 @@ export default function HomePage() {
         }
       }}
     />
+    
   ), [userPos, demoFridges, selectedFridgeId]);
 
   useEffect(() => {
@@ -135,22 +137,25 @@ export default function HomePage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
+      case 'All':
+        return 'bg-cyan-400 text-cyan-400 border-cyan-400';
       case 'available':
+        return 'bg-emerald-400/10 text-emerald-400 border-emerald-400/20';
+      case 'Available':
         return 'bg-emerald-400/10 text-emerald-400 border-emerald-400/20';
       case 'upcoming':
         return 'bg-yellow-400/10 text-yellow-400 border-yellow-400/20';
+      case 'Upcoming':
+          return 'bg-yellow-400/10 text-yellow-400 border-yellow-400/20';
       case 'unavailable':
         return 'bg-red-400/10 text-red-400 border-red-400/20';
+      case 'Unavailable':
+          return 'bg-red-400/10 text-red-400 border-red-400/20';
       default:
         return 'bg-gray-400/10 text-gray-400 border-gray-400/20';
     }
   };
 
-  const getPercentageColor = (percentage: number) => {
-    if (percentage >= 80) return 'text-red-400';
-    if (percentage >= 50) return 'text-yellow-400';
-    return 'text-emerald-400';
-  };
 
   const filteredItems = useMemo(() => {
     if (!selectedFridge) return [];
@@ -173,15 +178,13 @@ export default function HomePage() {
     const currentY = e.touches[0].clientY;
     const diff = startY - currentY;
     
-    if (diff > 50 && sheetPosition === 'peek') {
-      setSheetPosition('half');
-    } else if (diff > 50 && sheetPosition === 'half') {
+    if (diff > 50 && sheetPosition === 'full') {
+      setSheetPosition('closed');
+    } else if (diff < -50 && sheetPosition === 'closed') {
       setSheetPosition('full');
-    } else if (diff < -50 && sheetPosition === 'full') {
-      setSheetPosition('half');
-    } else if (diff < -50 && sheetPosition === 'half') {
-      setSheetPosition('peek');
     }
+
+
     
     setStartY(currentY);
   };
@@ -296,7 +299,7 @@ export default function HomePage() {
                       <h3 className="text-gray-100 font-medium group-hover:text-white">
                         {fridge.name}
                       </h3>
-                      <span className={`text-sm font-medium ${getPercentageColor(fridge.percentageFull)}`}>
+                      <span className={`text-sm font-medium text-emerald-400`}>
                         {fridge.percentageFull}% full
                       </span>
                     </div>
@@ -315,7 +318,7 @@ export default function HomePage() {
                   {/* Percentage bar */}
                   <div className="h-1.5 bg-gray-800/50 rounded-full overflow-hidden">
                     <div 
-                      className={`h-full ${getPercentageColor(fridge.percentageFull)} bg-current transition-all duration-300`}
+                      className={`h-full text bg-current transition-all duration-300`}
                       style={{ width: `${fridge.percentageFull}%` }}
                     />
                   </div>
@@ -328,10 +331,8 @@ export default function HomePage() {
 
       {/* Mobile Bottom Sheet */}
       <div 
-        className={`fixed inset-x-0 bg-[#111111]/95 backdrop-blur-md shadow-2xl z-10 transition-all duration-300 ease-in-out touch-pan-y md:hidden
-          ${sheetPosition === 'peek' ? 'h-[30%] bottom-0' : 
-            sheetPosition === 'half' ? 'h-[60%] bottom-0' : 
-            'h-[calc(100%-8rem)] bottom-0'}`}
+         className={`fixed inset-x-0 bg-[#111111]/95 backdrop-blur-md shadow-2xl z-10 transition-all duration-300 ease-in-out touch-pan-y md:hidden
+          ${sheetPosition === 'full' ? 'h-[80%] bottom-0' : 'h-[20%] bottom-0'}`}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
@@ -339,11 +340,8 @@ export default function HomePage() {
         {/* Drag Handle */}
         <div 
           className="w-full h-8 flex items-center justify-center cursor-pointer"
-          onClick={() => {
-            if (sheetPosition === 'peek') setSheetPosition('half');
-            else if (sheetPosition === 'half') setSheetPosition('full');
-            else setSheetPosition('peek');
-          }}
+          onClick={() => setSheetPosition(sheetPosition === 'full' ? 'closed' : 'full')}
+
         >
           <div className="w-12 h-1 bg-gray-600 rounded-full"></div>
         </div>
@@ -359,7 +357,7 @@ export default function HomePage() {
                   onClick={() => setActiveFilter(filter)}
                   className={`px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-all duration-200 ${
                     activeFilter === filter
-                      ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 shadow-lg shadow-emerald-500/10'
+                      ? `bg-${getStatusColor(filter)}-500/20 text-red-400 border border-emerald-500/20 shadow-lg shadow-emerald-500/10`
                       : 'text-gray-400 hover:bg-[#1D1D1D] hover:text-white border border-transparent'
                   }`}
                 >
@@ -387,7 +385,7 @@ export default function HomePage() {
                       <h3 className="text-gray-100 font-medium group-hover:text-white">
                         {fridge.name}
                       </h3>
-                      <span className={`text-sm font-medium ${getPercentageColor(fridge.percentageFull)}`}>
+                      <span className={`text-sm font-medium text-emerald-400`}>
                         {fridge.percentageFull}% full
                       </span>
                     </div>
@@ -406,7 +404,7 @@ export default function HomePage() {
                   {/* Percentage bar */}
                   <div className="h-1.5 bg-gray-800/50 rounded-full overflow-hidden">
                     <div 
-                      className={`h-full ${getPercentageColor(fridge.percentageFull)} bg-current transition-all duration-300`}
+                      className={`h-full text-emerald-400 bg-current transition-all duration-300`}
                       style={{ width: `${fridge.percentageFull}%` }}
                     />
                   </div>
