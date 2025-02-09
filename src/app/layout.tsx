@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Neighborly: Your Community, You build it",
+  title: "Neighborly",
   description: "Neighborly: Your Community, You build it",
 };
 
