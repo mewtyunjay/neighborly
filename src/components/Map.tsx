@@ -32,12 +32,12 @@ export default function Map({ userPos, locations, handleMarkerClick }: MapProps)
             position.coords.longitude,
             position.coords.latitude
           ];
-          
           if (map.current) {
             map.current.flyTo({
               center: newPos,
               zoom: 15,
-              duration: 2000
+              duration: 2000,
+              offset: [0, -150]
             });
 
             if (userPos) {
@@ -70,7 +70,7 @@ export default function Map({ userPos, locations, handleMarkerClick }: MapProps)
     }
 
     mapboxgl.accessToken = mapboxToken;
-    
+
     if (!map.current) {
       map.current = new mapboxgl.Map({
         container: mapContainer.current as HTMLElement,
@@ -94,9 +94,9 @@ export default function Map({ userPos, locations, handleMarkerClick }: MapProps)
         });
 
         // Then set the terrain using the source
-        map.current.setTerrain({ 
-          source: 'mapbox-dem', 
-          exaggeration: 1.5 
+        map.current.setTerrain({
+          source: 'mapbox-dem',
+          exaggeration: 1.5
         });
 
         map.current.addLayer({
@@ -177,15 +177,26 @@ export default function Map({ userPos, locations, handleMarkerClick }: MapProps)
 
   return (
     <div className="h-screen w-full relative">
+      <style jsx global>{`
+        @media (max-width: 768px) {
+          .mapboxgl-ctrl-bottom-right {
+            bottom: 190px !important;
+          }
+        }
+      `}</style>
       <div
         id="map-container"
         ref={mapContainer}
         className="h-full w-full rounded-lg"
       />
-      <MapControls 
-        map={map.current}
-        onLocationButtonClick={handleCurrentLocation}
-      />
+
+      {/* On mobile, lift the controls above the map */}
+      <div>
+        <MapControls
+          map={map.current}
+          onLocationButtonClick={handleCurrentLocation}
+        />
+      </div>
     </div>
   );
 } 

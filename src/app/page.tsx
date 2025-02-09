@@ -70,7 +70,7 @@ export default function HomePage() {
     },
     {
       id: '3',
-      name: 'Downtown Brooklyn ',
+      name: 'Bay Ridge ',
       address: '345 Jay Street, Brooklyn',
       distance: '0.4 km',
       status: 'unavailable',
@@ -335,7 +335,7 @@ export default function HomePage() {
                 <div
                   key={fridge.id}
                   onClick={() => handleFridgeClick(fridge)}
-                  className="group p-4 rounded-2xl transition-shadow duration-200 cursor-pointer border border-gray-800/50 hover:bg-[#B0E0E6] hover:border-[#B0E0E6]/20 hover:shadow-lg hover:shadow-[#B0E0E6]/5"
+                  className="group p-4 rounded-2xl transition-shadow duration-200 cursor-pointer border border-gray-800/50  hover:border-[#B0E0E6]/20 hover:shadow-lg hover:shadow-[#B0E0E6]/5"
                 >
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
