@@ -86,11 +86,28 @@ export default function AddItemModal({ isOpen, onClose, fridges, user }: AddItem
 	};
 
 	const handleSubmit = async (e: React.FormEvent) => {
-
 		e.preventDefault();
 		if (!selectedFridge || parseInt(formData.quantity) === 0) return;
 		setIsSubmitting(true);
 		try {
+			// First upload the image to ImgBB
+			const imageUploadResponse = await fetch('/api/upload-image', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					image: capturedImage?.split(',')[1] // Remove data URL prefix
+				}),
+			});
+
+			const imageData = await imageUploadResponse.json();
+			
+			if (!imageData.success) {
+				throw new Error('Failed to upload image');
+			}
+
+			// Then submit the item with the image URL
 			const response = await fetch('/api/add-item', {
 				method: 'POST',
 				headers: {
@@ -100,8 +117,8 @@ export default function AddItemModal({ isOpen, onClose, fridges, user }: AddItem
 					name: formData.name,
 					fridgeId: selectedFridge.id,
 					quantity: parseInt(formData.quantity),
-					userId: user.id, // Replace with actual user ID from session
-					photo: capturedImage, // Using the captured webcam image
+					userId: user.id,
+					photo: imageData.url,
 					description: formData.description,
 					category: formData.category
 				}),

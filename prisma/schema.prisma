@@ -33,14 +33,16 @@ model Fridge {
 }
 
 model Item {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  name      String
-  quantity  Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  fridgeId  String
-  userId    String?
-  photo_url String?
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  quantity    Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  fridgeId    String
+  userId      String?
+  photo_url   String
+  description String?
+  category    String?
 }
 
 model Camera {

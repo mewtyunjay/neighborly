@@ -136,7 +136,7 @@ export default function Map({ userPos, locations, handleMarkerClick }: MapProps)
               15.05,
               ['get', 'min_height']
             ],
-            'fill-extrusion-opacity': 0.6,
+            'fill-extrusion-opacity': 0.7,
             'fill-extrusion-ambient-occlusion-intensity': 0.5
           }
         });

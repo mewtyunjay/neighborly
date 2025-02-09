@@ -25,7 +25,7 @@ export async function POST(request: Request) {
             fridgeId: fridgeId,
             quantity: quantity,
             userId: userId,
-            photo: photo,
+            photo_url: photo,
             description: description,
             category: category,
             createdAt: new Date(),
