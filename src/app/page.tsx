@@ -3,6 +3,8 @@
 import { useEffect, useState, useMemo, useRef } from 'react';
 import Map from '@/components/Map';
 import AddItemModal from '@/components/AddItemModal';
+import { getUserSession } from '@/lib/session';
+import { redirect } from 'next/navigation';
 
 interface FridgeItem {
   id: string;
@@ -18,12 +20,31 @@ interface FridgeLocation {
   address: string;
   distance: string;
   status: 'available' | 'unavailable' | 'upcoming';
+  isLocked: boolean;
   coordinates: [number, number];
   percentageFull: number;
   items: FridgeItem[];
 }
 
-export default function HomePage() {
+interface UnlockedFridgeState {
+  [key: string]: {
+    isUnlocked: boolean;
+    isWithinRange: boolean;
+  }
+}
+
+async function checkLogin() {
+  const user = await getUserSession()
+  if (!user) {
+    redirect('/login');
+  }
+};
+
+function HomePage() {
+  useEffect(() => {
+    checkLogin();
+  }, []);
+
   const mapRef = useRef<any>(null);
   const [userPos, setUserPos] = useState<[number, number] | null>(null);
   const [activeFilter, setActiveFilter] = useState('All');
@@ -35,94 +56,56 @@ export default function HomePage() {
   const [startY, setStartY] = useState(0);
   const [selectedFridgeId, setSelectedFridgeId] = useState<string | null>(null);
   const [isAddItemModalOpen, setIsAddItemModalOpen] = useState(false);
-
-  const filters = ['All', 'Available', 'Upcoming', 'Unavailable'];
-  const itemCategories = ['All', 'Medicine', 'Utilities', 'Food'];
-
-  const demoFridges: FridgeLocation[] = [
-    { 
+  const [fridges, setFridges] = useState<FridgeLocation[]>([
+    {
       id: '1',
-      name: 'Fridge #1',
-      address: '123 Washington Square, NYU Campus',
+      name: 'NYU Fridge',
+      address: '123 Washington Square, New York',
       distance: '0.3 km',
       status: 'available',
+      isLocked: false,
       coordinates: [-73.9971, 40.7308],
       percentageFull: 75,
       items: [
-        { id: '1', name: 'Insulin', category: 'medicine', quantity: 5, addedAt: '2 hours ago' },
-        { id: '2', name: 'First Aid Kit', category: 'medicine', quantity: 2, addedAt: '1 day ago' },
-        { id: '3', name: 'Fresh Vegetables', category: 'food', quantity: 10, addedAt: '3 hours ago' },
-        { id: '5', name: 'Power Bank', category: 'utilities', quantity: 3, addedAt: '5 hours ago' },
+        {
+          id: '1',
+          name: 'Fresh Milk',
+          quantity: 3,
+          addedAt: '2 hours ago',
+          category: 'food'
+        },
+        {
+          id: '2',
+          name: 'Bread',
+          quantity: 2,
+          addedAt: '1 hour ago',
+          category: 'food'
+        }
       ]
     },
-    { 
+    {
       id: '2',
-      name: 'Fridge #2',
-      address: '456 Broadway Ave, Greenwich Village',
+      name: 'Greenwich Fridge',
+      address: '456 Broadway Ave',
       distance: '0.5 km',
-      status: 'upcoming',
+      status: 'available',
+      isLocked: true,
       coordinates: [-73.9990, 40.7264],
       percentageFull: 30,
       items: [
-        { id: '6', name: 'Bandages', category: 'medicine', quantity: 20, addedAt: '1 day ago' },
-        { id: '7', name: 'Canned Food', category: 'food', quantity: 15, addedAt: '6 hours ago' },
-      ]
-    },
-    { 
-      id: '3',
-      name: 'Fridge #3',
-      address: '789 Lafayette St, NoHo',
-      distance: '0.8 km',
-      status: 'unavailable',
-      coordinates: [-73.9947, 40.7287],
-      percentageFull: 90,
-      items: []
-    },
-  ];
-
-  // Memoize the filtered fridges
-  const filteredFridges = useMemo(() => {
-    let filtered = demoFridges;
-    
-    if (activeFilter !== 'All') {
-      filtered = filtered.filter(fridge => 
-        fridge.status.toLowerCase() === activeFilter.toLowerCase()
-      );
-    }
-    
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(fridge => 
-        fridge.name.toLowerCase().includes(query) ||
-        fridge.address.toLowerCase().includes(query)
-      );
-    }
-    
-    return filtered;
-  }, [activeFilter, searchQuery]);
-
-  // Memoize the map component with fridge locations
-  const MapComponent = useMemo(() => (
-
-    <Map 
-      userPos={userPos || undefined} 
-      locations={demoFridges.map(fridge => ({
-        coordinates: fridge.coordinates,
-        status: fridge.status,
-        name: fridge.name,
-        id: fridge.id,
-        percentageFull: fridge.percentageFull,
-        isSelected: fridge.id === selectedFridgeId
-      }))}
-      handleMarkerClick={(id) => {
-        const fridge = demoFridges.find(f => f.id === id);
-        if (fridge) {
-          handleFridgeClick(fridge);
+        {
+          id: '3',
+          name: 'Canned Soup',
+          quantity: 5,
+          addedAt: '3 hours ago',
+          category: 'food'
         }
-      }}
-    />
-    
-  ), [userPos, demoFridges, selectedFridgeId]);
+      ]
+    }
+  ]);
+
+  const filters = ['All', 'Available', 'Upcoming', 'Unavailable'];
+  const itemCategories = ['All', 'Medicine', 'Utilities', 'Food'];
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -136,6 +119,47 @@ export default function HomePage() {
       );
     }
   }, []);
+
+  useEffect(() => {
+    const loadFridges = async (longitude: number, latitude: number) => {
+      try {
+        const response = await fetch('/api/load', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ longitude, latitude }),
+        });
+        
+        const data = await response.json();
+        
+        const mappedFridges: FridgeLocation[] = data.map((fridge: any) => ({
+          id: fridge.id,
+          name: fridge.name,
+          address: fridge.address,
+          distance: "0.5 km",
+          status: fridge.isLocked ? 'unavailable' : 'available',
+          coordinates: [fridge.longitude, fridge.latitude],
+          percentageFull: 75,
+          items: fridge.items.map((item: any) => ({
+            id: item.id,
+            name: item.name,
+            quantity: item.quantity,
+            addedAt: new Date(item.createdAt).toLocaleString(),
+            category: 'food'
+          }))
+        }));
+
+        setFridges(mappedFridges);
+      } catch (error) {
+        console.error("Error loading fridges:", error);
+      }
+    };
+
+    if (userPos) {
+      loadFridges(userPos[0], userPos[1]);
+    }
+  }, [userPos]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -158,6 +182,45 @@ export default function HomePage() {
     }
   };
 
+  const filteredFridges = useMemo(() => {
+    let filtered = fridges;
+    
+    if (activeFilter !== 'All') {
+      filtered = filtered.filter(fridge => 
+        fridge.status.toLowerCase() === activeFilter.toLowerCase()
+      );
+    }
+    
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(fridge => 
+        fridge.name.toLowerCase().includes(query) ||
+        fridge.address.toLowerCase().includes(query)
+      );
+    }
+    
+    return filtered;
+  }, [fridges, activeFilter, searchQuery]);
+
+  const MapComponent = useMemo(() => (
+    <Map 
+      userPos={userPos || undefined} 
+      locations={fridges.map(fridge => ({
+        coordinates: fridge.coordinates,
+        status: fridge.status,
+        name: fridge.name,
+        id: fridge.id,
+        percentageFull: fridge.percentageFull,
+        isSelected: fridge.id === selectedFridgeId
+      }))}
+      handleMarkerClick={(id) => {
+        const fridge = fridges.find(f => f.id === id);
+        if (fridge) {
+          handleFridgeClick(fridge);
+        }
+      }}
+    />
+  ), [userPos, fridges, selectedFridgeId]);
 
   const filteredItems = useMemo(() => {
     if (!selectedFridge) return [];
@@ -204,6 +267,109 @@ export default function HomePage() {
         zoom: 16,
         duration: 1500
       });
+    }
+  };
+
+  const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+    // calculation algorithm
+    const R = 3959; //
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+      Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c; // Distance in miles
+  };
+
+  const [unlockedFridges, setUnlockedFridges] = useState<UnlockedFridgeState>({});
+
+  const handleUnlock = async (fridgeId: string) => {
+    if (!userPos) return;
+    
+    try {
+      const response = await fetch('/api/unlock', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ fridgeId }),
+      });
+
+      if (response.status === 200) {
+        const fridge = fridges.find(f => f.id === fridgeId);
+        if (fridge) {
+          const distance = calculateDistance(
+            userPos[1], userPos[0],
+            fridge.coordinates[1], fridge.coordinates[0]
+          );
+          
+          if (distance <= 1) {
+            setUnlockedFridges(prev => ({
+              ...prev,
+              [fridgeId]: {
+                isUnlocked: true,
+                isWithinRange: true
+              }
+            }));
+          } else {
+            alert('You must be within 1 mile of the fridge to unlock it');
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error unlocking fridge:', error);
+    }
+  };
+
+  const handleLockFridge = async (fridgeId: string) => {
+    try {
+      const response = await fetch('/api/lock', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ fridgeId }),
+      });
+
+      if (response.ok) {
+        setUnlockedFridges(prev => {
+          const newState = { ...prev };
+          delete newState[fridgeId];
+          return newState;
+        });
+      }
+    } catch (error) {
+      console.error('Error locking fridge:', error);
+    }
+  };
+
+  const handleCheckout = async (itemId: string) => {
+    try {
+      const response = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ itemId }),
+      });
+
+      if (response.ok) {
+        // Update local state or refresh data
+        const updatedFridges = fridges.map(fridge => {
+          if (fridge.id === selectedFridge?.id) {
+            return {
+              ...fridge,
+              items: fridge.items.filter(item => item.id !== itemId)
+            };
+          }
+          return fridge;
+        });
+        setFridges(updatedFridges);
+      }
+    } catch (error) {
+      console.error('Error checking out item:', error);
     }
   };
 
@@ -444,35 +610,36 @@ export default function HomePage() {
             {/* Modal Header */}
             <div className="p-6 border-b border-gray-800">
               <div className="flex items-center justify-between mb-2">
-                <h2 className="text-xl font-semibold text-white">{selectedFridge.name}</h2>
-                <button 
-                  onClick={() => setSelectedFridge(null)}
-                  className="text-gray-400 hover:text-white transition-colors"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-              <p className="text-gray-400 text-sm">{selectedFridge.address}</p>
-            </div>
-
-            {/* Category Filters */}
-            <div className="p-4 border-b border-gray-800 overflow-x-auto">
-              <div className="flex gap-2">
-                {itemCategories.map((category) => (
+                <div>
+                  <h2 className="text-xl font-semibold text-white">{selectedFridge.name}</h2>
+                  <p className="text-gray-400 text-sm mt-1">{selectedFridge.address}</p>
+                </div>
+                <div className="flex items-center gap-3">
                   <button
-                    key={category}
-                    onClick={() => setActiveItemCategory(category)}
-                    className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all duration-200 ${
-                      activeItemCategory === category
-                        ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 shadow-lg shadow-emerald-500/10'
-                        : 'text-gray-400 hover:bg-[#1D1D1D] hover:text-white border border-transparent'
+                    onClick={() => handleUnlock(selectedFridge.id)}
+                    disabled={unlockedFridges[selectedFridge.id]?.isUnlocked}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      unlockedFridges[selectedFridge.id]?.isUnlocked 
+                        ? 'bg-emerald-500/20 text-emerald-400'
+                        : 'bg-blue-500 hover:bg-blue-600 text-white'
                     }`}
                   >
-                    {category}
+                    {unlockedFridges[selectedFridge.id]?.isUnlocked ? 'Unlocked' : 'Unlock Fridge'}
                   </button>
-                ))}
+                  <button 
+                    onClick={() => {
+                      if (selectedFridge && unlockedFridges[selectedFridge.id]?.isUnlocked) {
+                        handleLockFridge(selectedFridge.id);
+                      }
+                      setSelectedFridge(null);
+                    }}
+                    className="text-gray-400 hover:text-white transition-colors"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -496,9 +663,23 @@ export default function HomePage() {
                           <span className="text-gray-400">Added {item.addedAt}</span>
                         </div>
                       </div>
-                      <span className="px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                        {item.category.charAt(0).toUpperCase() + item.category.slice(1)}
-                      </span>
+                      <div className="flex items-center gap-3">
+                        <span className="px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                          {item.category.charAt(0).toUpperCase() + item.category.slice(1)}
+                        </span>
+                        {unlockedFridges[selectedFridge.id]?.isUnlocked && 
+                          unlockedFridges[selectedFridge.id]?.isWithinRange && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleCheckout(item.id);
+                            }}
+                            className="px-3 py-1 rounded-lg text-sm font-medium bg-emerald-500 hover:bg-emerald-600 text-white transition-colors"
+                          >
+                            Checkout
+                          </button>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -512,8 +693,10 @@ export default function HomePage() {
       <AddItemModal
         isOpen={isAddItemModalOpen}
         onClose={() => setIsAddItemModalOpen(false)}
-        fridges={demoFridges}
+        fridges={fridges}
       />
     </div>
   );
 }
+
+export default HomePage;
