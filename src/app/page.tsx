@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useMemo, useRef } from 'react';
 import Map from '@/components/Map';
+import AddItemModal from '@/components/AddItemModal';
 
 interface FridgeItem {
   id: string;
@@ -33,6 +34,7 @@ export default function HomePage() {
   const [isDragging, setIsDragging] = useState(false);
   const [startY, setStartY] = useState(0);
   const [selectedFridgeId, setSelectedFridgeId] = useState<string | null>(null);
+  const [isAddItemModalOpen, setIsAddItemModalOpen] = useState(false);
 
   const filters = ['All', 'Available', 'Upcoming', 'Unavailable'];
   const itemCategories = ['All', 'Medicine', 'Utilities', 'Food'];
@@ -101,7 +103,6 @@ export default function HomePage() {
 
   // Memoize the map component with fridge locations
   const MapComponent = useMemo(() => (
-
     <Map 
       userPos={userPos || undefined} 
       locations={demoFridges.map(fridge => ({
@@ -119,7 +120,6 @@ export default function HomePage() {
         }
       }}
     />
-    
   ), [userPos, demoFridges, selectedFridgeId]);
 
   useEffect(() => {
@@ -137,25 +137,22 @@ export default function HomePage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'All':
-        return 'bg-cyan-400 text-cyan-400 border-cyan-400';
       case 'available':
-        return 'bg-emerald-400/10 text-emerald-400 border-emerald-400/20';
-      case 'Available':
         return 'bg-emerald-400/10 text-emerald-400 border-emerald-400/20';
       case 'upcoming':
         return 'bg-yellow-400/10 text-yellow-400 border-yellow-400/20';
-      case 'Upcoming':
-          return 'bg-yellow-400/10 text-yellow-400 border-yellow-400/20';
       case 'unavailable':
         return 'bg-red-400/10 text-red-400 border-red-400/20';
-      case 'Unavailable':
-          return 'bg-red-400/10 text-red-400 border-red-400/20';
       default:
         return 'bg-gray-400/10 text-gray-400 border-gray-400/20';
     }
   };
 
+  const getPercentageColor = (percentage: number) => {
+    if (percentage >= 80) return 'text-red-400';
+    if (percentage >= 50) return 'text-yellow-400';
+    return 'text-emerald-400';
+  };
 
   const filteredItems = useMemo(() => {
     if (!selectedFridge) return [];
@@ -209,15 +206,35 @@ export default function HomePage() {
     <div className="h-screen w-full relative bg-[#111111]">
       {/* Header - Fixed on mobile, hidden on desktop */}
       <div className="fixed top-0 inset-x-0 z-20 bg-[#111111]/95 backdrop-blur-md md:hidden">
-        <div className="p-4 space-y-4">
-          {/* Logo Section */}
-          <div className="flex flex-col items-center">
-            <h1 className="text-2xl font-bold text-emerald-400">Neighbourly</h1>
-            <p className="text-gray-400 text-xs">Connect with your community</p>
+        <div className="p-4">
+          {/* Logo and Actions Section */}
+          <div className="flex items-center justify-between">
+            {/* Logo on the left */}
+            <div className="flex items-center">
+              <h1 className="text-2xl font-bold text-emerald-400">Neighbourly</h1>
+            </div>
+            
+            {/* Actions on the right */}
+            <div className="flex items-center space-x-4">
+              {/* Add Item to Fridge Button */}
+              <button 
+                onClick={() => setIsAddItemModalOpen(true)}
+                className="px-3 py-1.5 bg-emerald-500 text-white rounded-lg text-sm font-medium hover:bg-emerald-600 transition-colors"
+              >
+                Add Item
+              </button>
+              
+              {/* Profile Icon */}
+              <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center">
+                <svg className="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </div>
+            </div>
           </div>
 
           {/* Search Bar */}
-          <div className="relative">
+          <div className="relative mt-4">
             <input
               type="text"
               placeholder="Search fridges..."
@@ -299,7 +316,7 @@ export default function HomePage() {
                       <h3 className="text-gray-100 font-medium group-hover:text-white">
                         {fridge.name}
                       </h3>
-                      <span className={`text-sm font-medium text-emerald-400`}>
+                      <span className={`text-sm font-medium ${getPercentageColor(fridge.percentageFull)}`}>
                         {fridge.percentageFull}% full
                       </span>
                     </div>
@@ -318,7 +335,7 @@ export default function HomePage() {
                   {/* Percentage bar */}
                   <div className="h-1.5 bg-gray-800/50 rounded-full overflow-hidden">
                     <div 
-                      className={`h-full text bg-current transition-all duration-300`}
+                      className={`h-full ${getPercentageColor(fridge.percentageFull)} bg-current transition-all duration-300`}
                       style={{ width: `${fridge.percentageFull}%` }}
                     />
                   </div>
@@ -357,7 +374,7 @@ export default function HomePage() {
                   onClick={() => setActiveFilter(filter)}
                   className={`px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-all duration-200 ${
                     activeFilter === filter
-                      ? `bg-${getStatusColor(filter)}-500/20 text-red-400 border border-emerald-500/20 shadow-lg shadow-emerald-500/10`
+                      ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 shadow-lg shadow-emerald-500/10'
                       : 'text-gray-400 hover:bg-[#1D1D1D] hover:text-white border border-transparent'
                   }`}
                 >
@@ -385,7 +402,7 @@ export default function HomePage() {
                       <h3 className="text-gray-100 font-medium group-hover:text-white">
                         {fridge.name}
                       </h3>
-                      <span className={`text-sm font-medium text-emerald-400`}>
+                      <span className={`text-sm font-medium ${getPercentageColor(fridge.percentageFull)}`}>
                         {fridge.percentageFull}% full
                       </span>
                     </div>
@@ -404,7 +421,7 @@ export default function HomePage() {
                   {/* Percentage bar */}
                   <div className="h-1.5 bg-gray-800/50 rounded-full overflow-hidden">
                     <div 
-                      className={`h-full text-emerald-400 bg-current transition-all duration-300`}
+                      className={`h-full ${getPercentageColor(fridge.percentageFull)} bg-current transition-all duration-300`}
                       style={{ width: `${fridge.percentageFull}%` }}
                     />
                   </div>
@@ -485,6 +502,13 @@ export default function HomePage() {
           </div>
         </div>
       )}
+
+      {/* Add Item Modal */}
+      <AddItemModal
+        isOpen={isAddItemModalOpen}
+        onClose={() => setIsAddItemModalOpen(false)}
+        fridges={demoFridges}
+      />
     </div>
   );
 }
