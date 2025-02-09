@@ -15,6 +15,8 @@ interface FridgeItem {
   category: 'medicine' | 'utilities' | 'food';
   quantity: number;
   addedAt: string;
+  photo_url: string;
+  description: string;
 }
 
 interface FridgeLocation {
@@ -57,6 +59,7 @@ function HomePage() {
   const [isAddItemModalOpen, setIsAddItemModalOpen] = useState(false);
   const [fridges, setFridges] = useState<FridgeLocation[]>([]);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<{ url: string; name: string } | null>(null);
 
   const filters = ['All', 'Available', 'Upcoming', 'Unavailable'];
   const itemCategories = ['All', 'Medicine', 'Utilities', 'Food'];
@@ -315,7 +318,9 @@ function HomePage() {
             name: item.name,
             quantity: item.quantity,
             addedAt: new Date(item.createdAt).toLocaleString(),
-            category: 'food'
+            category: item.category || 'food',
+            photo_url: item.photo_url || '',
+            description: item.description || ''
           }))
         };
       });
@@ -674,14 +679,34 @@ function HomePage() {
                       key={`${item.id}-${index}`}
                       className="flex items-center justify-between p-4 rounded-2xl bg-gray-800/50 border border-gray-700"
                     >
-                      <div>
-                        <h3 className="text-white font-medium mb-1">{item.name}</h3>
-                        <div className="flex items-center gap-3 text-sm">
-                          <span className="text-gray-400">Quantity: {item.quantity}</span>
-                          <span className="px-3 py-1 rounded-full bg-gray-700 text-gray-400 text-xs">
-                            Added on {" "}
-                            {new Date(item.addedAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
-                          </span>
+                      <div className="flex items-center gap-4">
+                        {item.photo_url && (
+                          <div 
+                            className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedImage({ url: item.photo_url, name: item.name });
+                            }}
+                          >
+                            <img 
+                              src={item.photo_url} 
+                              alt={item.name}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        )}
+                        <div>
+                          <h3 className="text-white font-medium mb-1">{item.name}</h3>
+                          {item.description && (
+                            <p className="text-gray-400 text-sm mb-2">{item.description}</p>
+                          )}
+                          <div className="flex items-center gap-3 text-sm">
+                            <span className="text-gray-400">Quantity: {item.quantity}</span>
+                            <span className="px-3 py-1 rounded-full bg-gray-700 text-gray-400 text-xs">
+                              Added on {" "}
+                              {new Date(item.addedAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
+                            </span>
+                          </div>
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
@@ -729,6 +754,40 @@ function HomePage() {
           fridges={fridges}
           user={{ name: session?.user?.name || '', email: session?.user?.email || '', id: session?.user?.id || '' }}
         />
+      )}
+
+      {/* Image Modal */}
+      {selectedImage && (
+        <div 
+          className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[60] p-4"
+          onClick={() => setSelectedImage(null)}
+        >
+          <div 
+            className="relative max-w-3xl w-full bg-[#111111] rounded-2xl overflow-hidden shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="absolute top-4 right-4 z-10">
+              <button
+                onClick={() => setSelectedImage(null)}
+                className="p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="aspect-square w-full">
+              <img 
+                src={selectedImage.url} 
+                alt={selectedImage.name}
+                className="w-full h-full object-contain"
+              />
+            </div>
+            <div className="p-4 border-t border-gray-800">
+              <h3 className="text-lg font-medium text-white">{selectedImage.name}</h3>
+            </div>
+          </div>
+        </div>
       )}
     </div >
   );
