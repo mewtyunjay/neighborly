@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useMemo, useRef } from 'react';
 import Map from '@/components/Map';
+import AddItemModal from '@/components/AddItemModal';
 
 interface FridgeItem {
   id: string;
@@ -33,6 +34,7 @@ export default function HomePage() {
   const [isDragging, setIsDragging] = useState(false);
   const [startY, setStartY] = useState(0);
   const [selectedFridgeId, setSelectedFridgeId] = useState<string | null>(null);
+  const [isAddItemModalOpen, setIsAddItemModalOpen] = useState(false);
 
   const filters = ['All', 'Available', 'Upcoming', 'Unavailable'];
   const itemCategories = ['All', 'Medicine', 'Utilities', 'Food'];
@@ -210,10 +212,30 @@ export default function HomePage() {
       {/* Header - Fixed on mobile, hidden on desktop */}
       <div className="fixed top-0 inset-x-0 z-20 bg-[#111111]/95 backdrop-blur-md md:hidden">
         <div className="p-4 space-y-4">
-          {/* Logo Section */}
-          <div className="flex flex-col items-center">
-            <h1 className="text-2xl font-bold text-emerald-400">Neighbourly</h1>
-            <p className="text-gray-400 text-xs">Connect with your community</p>
+          {/* Top Bar with Logo and Actions */}
+          <div className="flex items-center justify-between">
+            {/* Logo on the left */}
+            <div className="flex items-center">
+              <h1 className="text-2xl font-bold text-emerald-400">Neighbourly</h1>
+            </div>
+            
+            {/* Actions on the right */}
+            <div className="flex items-center space-x-4">
+              {/* Add Item Button */}
+              <button 
+                onClick={() => setIsAddItemModalOpen(true)}
+                className="px-3 py-1.5 bg-emerald-500 text-white rounded-lg text-sm font-medium hover:bg-emerald-600 transition-colors"
+              >
+                Add Item
+              </button>
+              
+              {/* Profile Icon */}
+              <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center">
+                <svg className="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </div>
+            </div>
           </div>
 
           {/* Search Bar */}
@@ -485,6 +507,13 @@ export default function HomePage() {
           </div>
         </div>
       )}
+
+      {/* Add Item Modal */}
+      <AddItemModal
+        isOpen={isAddItemModalOpen}
+        onClose={() => setIsAddItemModalOpen(false)}
+        fridges={demoFridges}
+      />
     </div>
   );
 }
