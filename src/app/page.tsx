@@ -7,6 +7,7 @@ import AddItemModal from '@/components/AddItemModal';
 import { redirect } from 'next/navigation';
 import { useSession } from "next-auth/react"
 import Profile from '@/components/Profile';
+import { signIn } from "next-auth/react"
 
 interface FridgeItem {
   id: string;
@@ -90,7 +91,7 @@ function HomePage() {
           name: fridge.name,
           address: fridge.address,
           distance: "0.5 km", // TODO: Calculate distance
-          status: fridge.isLocked ? 'unavailable' : 'available',
+          status: fridge.isLocked ? 'available' : 'unavailable',
           coordinates: fridge.location.coordinates,
           percentageFull: 75,
           items: fridge.items.map((item: any) => ({
