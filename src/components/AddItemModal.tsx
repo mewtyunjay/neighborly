@@ -11,6 +11,16 @@ interface FridgeLocation {
   percentageFull: number;
 }
 
+interface NewItemPayload {
+  name: string;
+  quantity: number;
+  description: string;
+  userId: string;
+  photo?: File;
+  fridgeId: string;
+  category: 'medicine' | 'utilities' | 'food';
+}
+
 interface AddItemModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -19,10 +29,12 @@ interface AddItemModalProps {
 
 export default function AddItemModal({ isOpen, onClose, fridges }: AddItemModalProps) {
   const [selectedFridge, setSelectedFridge] = useState<FridgeLocation | null>(null);
+  const [selectedPhoto, setSelectedPhoto] = useState<File | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     quantity: '1',
+    category: 'food' as 'medicine' | 'utilities' | 'food'
   });
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
@@ -90,7 +102,7 @@ export default function AddItemModal({ isOpen, onClose, fridges }: AddItemModalP
     setIsCameraActive(true);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedFridge || parseInt(formData.quantity) === 0) return;
 
@@ -265,7 +277,7 @@ export default function AddItemModal({ isOpen, onClose, fridges }: AddItemModalP
             disabled={!selectedFridge || !formData.name || parseInt(formData.quantity) === 0}
             className="w-full py-3 px-4 bg-[#111111] hover:bg-[#e6e6e6] disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-medium rounded-xl transition-colors"
           >
-            Add to {selectedFridge?.name || 'Fridge'}
+            {isSubmitting ? 'Adding...' : `Add to ${selectedFridge?.name || 'Fridge'}`}
           </button>
         </form>
       </div>
