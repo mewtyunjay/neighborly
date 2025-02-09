@@ -3,6 +3,7 @@
 import { useEffect, useState, useMemo, useRef } from 'react';
 import Map from '@/components/Map';
 import AddItemModal from '@/components/AddItemModal';
+import Profile from '@/components/Profile';
 
 interface FridgeItem {
   id: string;
@@ -35,6 +36,7 @@ export default function HomePage() {
   const [startY, setStartY] = useState(0);
   const [selectedFridgeId, setSelectedFridgeId] = useState<string | null>(null);
   const [isAddItemModalOpen, setIsAddItemModalOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   const filters = ['All', 'Available', 'Upcoming', 'Unavailable'];
   const itemCategories = ['All', 'Medicine', 'Utilities', 'Food'];
@@ -219,6 +221,12 @@ export default function HomePage() {
     }
   };
 
+  // Mock user data - Replace this with actual user data from your auth system
+  const mockUser = {
+    name: "Mrityunjay Abhijeet Bhanja",
+    email: "mabhijeet11@gmail.com"
+  };
+
   return (
     <div className="h-screen w-full relative bg-[#111111]">
       {/* Header - Fixed on mobile, hidden on desktop */}
@@ -247,11 +255,14 @@ export default function HomePage() {
               </button>
 
               {/* Profile Icon */}
-              <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center">
+              <button
+                onClick={() => setIsProfileOpen(true)}
+                className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center hover:bg-gray-600 transition-colors"
+              >
                 <svg className="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
-              </div>
+              </button>
             </div>
           </div>
 
@@ -524,6 +535,13 @@ export default function HomePage() {
           </div>
         </div>
       )}
+
+      {/* Profile Modal */}
+      <Profile
+        isOpen={isProfileOpen}
+        onClose={() => setIsProfileOpen(false)}
+        user={mockUser}
+      />
 
       {/* Add Item Modal */}
       <AddItemModal
