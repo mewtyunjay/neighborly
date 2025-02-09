@@ -305,6 +305,10 @@ function HomePage() {
           fridge.location.coordinates[1],
           fridge.location.coordinates[0]
         );
+        const totalQuantity = fridge.items.reduce(
+          (acc: number, item: any) => acc + item.quantity,
+          0
+        );
         return {
           id: fridge._id,
           name: fridge.name,
@@ -312,7 +316,7 @@ function HomePage() {
           distance: `${distance.toFixed(2)} km`,
           status: fridge.isLocked ? 'available' : 'unavailable',
           coordinates: fridge.location.coordinates,
-          percentageFull: 75,
+          percentageFull: totalQuantity,
           items: fridge.items.map((item: any) => ({
             id: item._id,
             name: item.name,
@@ -320,8 +324,8 @@ function HomePage() {
             addedAt: new Date(item.createdAt).toLocaleString(),
             category: item.category || 'food',
             photo_url: item.photo_url || '',
-            description: item.description || ''
-          }))
+            description: item.description || '',
+          })),
         };
       });
 
@@ -345,8 +349,9 @@ function HomePage() {
         if (userPos) {
 
           handleLockFridge(fridgeId);
-          setSelectedFridge(null);
           loadFridges(userPos[0], userPos[1]);
+          setSelectedFridge(null);
+
         }
       }
     } catch (error) {
