@@ -91,7 +91,7 @@ function HomePage() {
           name: fridge.name,
           address: fridge.address,
           distance: "0.5 km", // TODO: Calculate distance
-          status: fridge.isLocked ? 'unavailable' : 'available',
+          status: fridge.isLocked ? 'available' : 'unavailable',
           coordinates: fridge.location.coordinates,
           percentageFull: 75,
           items: fridge.items.map((item: any) => ({
