@@ -297,42 +297,35 @@ function HomePage() {
         coordinates: fridge.location.coordinates,
         percentageFull: 75,
         items: fridge.items.map((item: any) => ({
-          id: item.id,
+          id: item._id,
           name: item.name,
           quantity: item.quantity,
           addedAt: new Date(item.createdAt).toLocaleString(),
           category: 'food'
         }))
       }));
-  
       setFridges(mappedFridges);
+      
     } catch (error) {
       console.error("Error loading fridges:", error);
     }
   };
 
-  const handleCheckout = async (itemId: string) => {
+  const handleCheckout = async (itemId: string ) => {
     try {
       const response = await fetch('/api/checkout', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ itemId }),
+        body: JSON.stringify({ itemId: itemId, userId: session?.user?.id }),
       });
-
+   
       if (response.ok) {
-        // Update local state or refresh data
-        const updatedFridges = fridges.map(fridge => {
-          if (fridge.id === selectedFridge?.id) {
-            return {
-              ...fridge,
-              items: fridge.items.filter(item => item.id !== itemId)
-            };
-          }
-          return fridge;
-        });
-        setFridges(updatedFridges);
+        if (userPos) {
+          loadFridges(userPos[0], userPos[1]);
+          setSelectedFridge(null);
+        }
       }
     } catch (error) {
       console.error('Error checking out item:', error);
@@ -702,3 +695,7 @@ function HomePage() {
 }
 
 export default HomePage;
+
+function closeItemModal() {
+  throw new Error('Function not implemented.');
+}
