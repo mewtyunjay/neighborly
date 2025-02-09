@@ -666,7 +666,10 @@ function HomePage() {
                         <h3 className="text-white font-medium mb-1">{item.name}</h3>
                         <div className="flex items-center gap-3 text-sm">
                           <span className="text-gray-400">Quantity: {item.quantity}</span>
-                          <span className="text-gray-400">Added {item.addedAt}</span>
+                          <span className="px-3 py-1 rounded-full bg-gray-700 text-gray-400 text-xs">
+                            Added on {" "}
+                            {new Date(item.addedAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
+                          </span>
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
