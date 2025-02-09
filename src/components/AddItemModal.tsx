@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import Webcam from 'react-webcam';
 import { analyzeImage } from '@/utils/gemini';
+import { User } from 'next-auth';
 
 interface FridgeLocation {
   id: string;
@@ -11,24 +12,17 @@ interface FridgeLocation {
   percentageFull: number;
 }
 
-interface NewItemPayload {
-  name: string;
-  quantity: number;
-  description: string;
-  userId: string;
-  photo?: File;
-  fridgeId: string;
-  category: 'medicine' | 'utilities' | 'food' | null;
-  
-}
-
 interface AddItemModalProps {
   isOpen: boolean;
   onClose: () => void;
   fridges: FridgeLocation[];
+  user: {
+    name: string;
+    email: string;
+  };
 }
 
-export default function AddItemModal({ isOpen, onClose, fridges }: AddItemModalProps) {
+export default function AddItemModal({ isOpen, onClose, fridges, user }: AddItemModalProps) {
   const [selectedFridge, setSelectedFridge] = useState<FridgeLocation | null>(null);
   const [selectedPhoto, setSelectedPhoto] = useState<File | null>(null);
   const [formData, setFormData] = useState({
@@ -106,7 +100,7 @@ export default function AddItemModal({ isOpen, onClose, fridges }: AddItemModalP
           name: formData.name,
           fridgeId: selectedFridge.id,
           quantity: parseInt(formData.quantity),
-          userId: "67a7f99e54bf1718d6c58d44", // Replace with actual user ID from session
+          userId: user.name, // Replace with actual user ID from session
           photo: capturedImage, // Using the captured webcam image
           description: formData.description,
           category: formData.category

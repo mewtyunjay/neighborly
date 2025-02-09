@@ -43,6 +43,7 @@ function HomePage() {
   // }, []);
   const { data: session } = useSession();
 
+
   const mapRef = useRef<any>(null);
   const [userPos, setUserPos] = useState<[number, number] | null>(null);
   const [activeFilter, setActiveFilter] = useState('All');
@@ -685,16 +686,12 @@ function HomePage() {
         </>
       )}
 
-
-
-
-
-
       {/* Add Item Modal */}
       <AddItemModal
         isOpen={isAddItemModalOpen}
         onClose={() => setIsAddItemModalOpen(false)}
         fridges={availableFridges}
+        user={{ name: session?.user?.name || '', email: session?.user?.email || '' }}
       />
     </div>
   );
