@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import Webcam from 'react-webcam';
 import { analyzeImage } from '@/utils/gemini';
-import { useRouter } from 'next/navigation';
 interface FridgeLocation {
 	id: string;
 	name: string;
@@ -23,7 +22,6 @@ interface AddItemModalProps {
 }
 
 export default function AddItemModal({ isOpen, onClose, fridges, user }: AddItemModalProps) {
-	const router = useRouter();
 	const [selectedFridge, setSelectedFridge] = useState<FridgeLocation | null>(null);
 	const [selectedPhoto, setSelectedPhoto] = useState<File | null>(null);
 	const [formData, setFormData] = useState({
@@ -117,7 +115,6 @@ export default function AddItemModal({ isOpen, onClose, fridges, user }: AddItem
 			
 			if (data.success) {
 				onClose();
-				router.refresh();
 			} else {
 				throw new Error(data.error || 'Failed to add item');
 			}
