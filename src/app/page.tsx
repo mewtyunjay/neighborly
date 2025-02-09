@@ -127,6 +127,7 @@ function HomePage() {
       filtered = filtered.filter(fridge =>
         fridge.name.toLowerCase().includes(query) ||
         fridge.address.toLowerCase().includes(query)
+        || fridge.items.some(item => item.name.toLowerCase().includes(query))
       );
     }
 
@@ -313,7 +314,7 @@ function HomePage() {
     }
   };
 
-  const handleCheckout = async (itemId: string, fridgeId:string ) => {
+  const handleCheckout = async (itemId: string, fridgeId: string) => {
     try {
       const response = await fetch('/api/checkout', {
         method: 'POST',
@@ -325,7 +326,7 @@ function HomePage() {
 
       if (response.ok) {
         if (userPos) {
-          
+
           setSelectedFridge(null);
           handleLockFridge(fridgeId);
           loadFridges(userPos[0], userPos[1]);
