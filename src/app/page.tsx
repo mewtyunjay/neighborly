@@ -29,7 +29,7 @@ export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFridge, setSelectedFridge] = useState<FridgeLocation | null>(null);
   const [activeItemCategory, setActiveItemCategory] = useState('All');
-  const [sheetPosition, setSheetPosition] = useState<'peek' | 'half' | 'full'>('peek');
+  const [sheetPosition, setSheetPosition] = useState<'closed' | 'full'>('full');
   const [isDragging, setIsDragging] = useState(false);
   const [startY, setStartY] = useState(0);
   const [selectedFridgeId, setSelectedFridgeId] = useState<string | null>(null);
@@ -173,15 +173,13 @@ export default function HomePage() {
     const currentY = e.touches[0].clientY;
     const diff = startY - currentY;
     
-    if (diff > 50 && sheetPosition === 'peek') {
-      setSheetPosition('half');
-    } else if (diff > 50 && sheetPosition === 'half') {
+    if (diff > 50 && sheetPosition === 'full') {
+      setSheetPosition('closed');
+    } else if (diff < -50 && sheetPosition === 'closed') {
       setSheetPosition('full');
-    } else if (diff < -50 && sheetPosition === 'full') {
-      setSheetPosition('half');
-    } else if (diff < -50 && sheetPosition === 'half') {
-      setSheetPosition('peek');
     }
+
+
     
     setStartY(currentY);
   };
@@ -328,10 +326,8 @@ export default function HomePage() {
 
       {/* Mobile Bottom Sheet */}
       <div 
-        className={`fixed inset-x-0 bg-[#111111]/95 backdrop-blur-md shadow-2xl z-10 transition-all duration-300 ease-in-out touch-pan-y md:hidden
-          ${sheetPosition === 'peek' ? 'h-[30%] bottom-0' : 
-            sheetPosition === 'half' ? 'h-[60%] bottom-0' : 
-            'h-[calc(100%-8rem)] bottom-0'}`}
+         className={`fixed inset-x-0 bg-[#111111]/95 backdrop-blur-md shadow-2xl z-10 transition-all duration-300 ease-in-out touch-pan-y md:hidden
+          ${sheetPosition === 'full' ? 'h-[80%] bottom-0' : 'h-[20%] bottom-0'}`}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
@@ -339,11 +335,8 @@ export default function HomePage() {
         {/* Drag Handle */}
         <div 
           className="w-full h-8 flex items-center justify-center cursor-pointer"
-          onClick={() => {
-            if (sheetPosition === 'peek') setSheetPosition('half');
-            else if (sheetPosition === 'half') setSheetPosition('full');
-            else setSheetPosition('peek');
-          }}
+          onClick={() => setSheetPosition(sheetPosition === 'full' ? 'closed' : 'full')}
+
         >
           <div className="w-12 h-1 bg-gray-600 rounded-full"></div>
         </div>
