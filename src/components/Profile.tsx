@@ -1,22 +1,22 @@
 'use client';
 
+import { signOut } from "next-auth/react";
 import React from 'react';
-import { signOut } from 'next-auth/react';
+import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 
 interface ProfileProps {
   isOpen: boolean;
   onClose: () => void;
-  user: {
-    name: string;
-    email: string;
-  };
 }
 
-const Profile: React.FC<ProfileProps> = ({ isOpen, onClose, user }) => {
+const Profile = ({ isOpen, onClose }: ProfileProps) => {
+  if (!isOpen) return null;
+
+  const { data: session } = useSession();
   const router = useRouter();
 
-  if (!isOpen) return null;
+  if (!session) return null;
 
   const menuItems = [
     {
@@ -76,14 +76,22 @@ const Profile: React.FC<ProfileProps> = ({ isOpen, onClose, user }) => {
         {/* User Info */}
         <div className="p-6 border-b border-gray-800">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-full bg-gray-700 flex items-center justify-center">
-              <span className="text-2xl font-semibold text-white">
-                {user.name.charAt(0).toUpperCase()}
-              </span>
-            </div>
+            {session.user?.image ? (
+              <img
+                src={session.user.image}
+                alt="Profile"
+                className="w-16 h-16 rounded-full"
+              />
+            ) : (
+              <div className="w-16 h-16 rounded-full bg-gray-700 flex items-center justify-center">
+                <span className="text-2xl font-semibold text-white">
+                  {session.user.name?.[0]?.toUpperCase()}
+                </span>
+              </div>
+            )}
             <div>
-              <h2 className="text-xl font-semibold text-white">{user.name}</h2>
-              <p className="text-gray-400">{user.email}</p>
+              <h2 className="text-xl font-semibold text-white">{session.user.name}</h2>
+              <p className="text-gray-400">{session.user.email}</p>
             </div>
           </div>
         </div>
@@ -121,4 +129,4 @@ const Profile: React.FC<ProfileProps> = ({ isOpen, onClose, user }) => {
   );
 };
 
-export default Profile; 
+export default Profile;
