@@ -42,7 +42,7 @@ export default function HomePage() {
   const demoFridges: FridgeLocation[] = [
     {
       id: '1',
-      name: 'MetroTech Fridge',
+      name: 'MetroTech ',
       address: '6 MetroTech Center, Brooklyn',
       distance: '0.2 km',
       status: 'available',
@@ -57,7 +57,7 @@ export default function HomePage() {
     },
     {
       id: '2',
-      name: 'DUMBO Fridge',
+      name: 'DUMBO ',
       address: '45 Water Street, Brooklyn',
       distance: '0.6 km',
       status: 'upcoming',
@@ -70,7 +70,7 @@ export default function HomePage() {
     },
     {
       id: '3',
-      name: 'Downtown Brooklyn Fridge',
+      name: 'Downtown Brooklyn ',
       address: '345 Jay Street, Brooklyn',
       distance: '0.4 km',
       status: 'unavailable',
@@ -222,7 +222,7 @@ export default function HomePage() {
   return (
     <div className="h-screen w-full relative bg-[#111111]">
       {/* Header - Fixed on mobile, hidden on desktop */}
-      <div className="fixed top-0 inset-x-0 z-20 bg-[#111111]/95 backdrop-blur-md md:hidden">
+      <div className="fixed top-0 inset-x-0 z-20 bg-gradient-to-b from-[#111111]/50 to-transparent backdrop-blur-sm md:hidden">
         <div className="p-4 space-y-4">
           {/* Top Bar with Logo and Actions */}
           <div className="flex items-center justify-between">
@@ -257,7 +257,7 @@ export default function HomePage() {
               placeholder="Search fridges..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-4 py-2 bg-[#1D1D1D] rounded-xl text-gray-100 placeholder-gray-500 border border-[#e6e6e6] focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 focus:outline-none transition-colors text-sm"
+              className="w-full px-4 py-2 bg-[#1D1D1D] rounded-2xl text-gray-100 placeholder-gray-500 border border-[#e6e6e6] focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 focus:outline-none transition-colors text-sm"
             />
             <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -274,7 +274,7 @@ export default function HomePage() {
       </div>
 
       {/* Desktop Sidebar */}
-      <div className="hidden md:block absolute top-0 left-0 w-1/2 h-full bg-[#111111]/95 backdrop-blur-md shadow-2xl">
+      <div className="hidden md:block absolute top-0 left-0 w-1/4 h-full bg-transparent backdrop-blur-md shadow-2xl">
         <div className="h-full overflow-hidden flex flex-col">
           {/* Header Section with fixed height */}
           <div className="flex-none p-8 pb-4">
@@ -291,7 +291,7 @@ export default function HomePage() {
                 placeholder="Search fridges..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full px-4 py-3 bg-[#1D1D1D] rounded-xl text-gray-100 placeholder-gray-500 border border-gray-800 focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 focus:outline-none transition-colors"
+                className="w-full px-4 py-3 bg-transparent rounded-2xl text-gray-100 placeholder-gray-500 border border-gray-800 focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 focus:outline-none transition-colors backdrop-blur-md bg-[#111111]/50"
               />
               <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -306,9 +306,9 @@ export default function HomePage() {
                 <button
                   key={filter}
                   onClick={() => setActiveFilter(filter)}
-                  className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${activeFilter === filter
-                    ? 'bg-[#e6e6e6]-500/20 text-[#e6e6e6]-400 border border-[#e6e6e6]-500/20 shadow-lg shadow-[#e6e6e6]-500/10'
-                    : 'text-gray-400 hover:bg-[#1D1D1D] hover:text-white border border-transparent'
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all shadow-md duration-200 ${activeFilter === filter
+                    ? 'bg-[#e6e6e6]-500/20 text-[#e6e6e6] border border-[#e6e6e6]-500/20 shadow-lg shadow-[#e6e6e6]-500/10'
+                    : 'text-gray-400 hover:bg-[#1D1D1D] border border-transparent'
                     }`}
                 >
                   {filter}
@@ -325,14 +325,14 @@ export default function HomePage() {
                 <div
                   key={fridge.id}
                   onClick={() => handleFridgeClick(fridge)}
-                  className="group p-4 rounded-xl hover:bg-[#1D1D1D] transition-all duration-200 cursor-pointer border border-gray-800/50 hover:border-emerald-500/20 hover:shadow-lg hover:shadow-emerald-500/5"
+                  className="group p-4 rounded-2xl hover:bg-[#1D1D1D] transition-shadow duration-200 cursor-pointer border border-gray-800/50 hover:border-emerald-500/20 hover:shadow-lg hover:shadow-emerald-500/5"
                 >
                   <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
                       <h3 className="text-gray-100 font-medium group-hover:text-white">
                         {fridge.name}
                       </h3>
-                      <span className={`text-sm font-medium text-[#e6e6e6]-400`}>
+                      <span className={`text-xs font-medium text-[#e6e6e6]`}>
                         {fridge.percentageFull}% full
                       </span>
                     </div>
@@ -388,7 +388,7 @@ export default function HomePage() {
                 <button
                   key={filter}
                   onClick={() => setActiveFilter(filter)}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-all duration-200 ${activeFilter === filter
+                  className={`px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-all shadow-md duration-200 ${activeFilter === filter
                     ? `bg-${getStatusColor(filter)}-500/20 text-${getStatusColor(filter)}-400 border border-${getStatusColor(filter)}-500/20 shadow-lg shadow-${getStatusColor(filter)}-500/10`
                     : 'text-gray-400 hover:bg-[#1D1D1D] hover:text-white border border-transparent'
                     }`}
@@ -406,7 +406,7 @@ export default function HomePage() {
                 <div
                   key={fridge.id}
                   onClick={() => handleFridgeClick(fridge)}
-                  className={`group p-3 rounded-xl transition-all duration-200 cursor-pointer border ${selectedFridgeId === fridge.id
+                  className={`group p-3 rounded-2xl transition-shadow duration-200 cursor-pointer border ${selectedFridgeId === fridge.id
                     ? 'bg-[#1D1D1D] border-[#e6e6e6]/50 shadow-lg shadow-[#e6e6e6]/10'
                     : 'hover:bg-[#1D1D1D] border-gray-800/50 hover:border-[#e6e6e6]/20 hover:shadow-lg hover:shadow-[#e6e6e6]/5'
                     }`}
@@ -473,7 +473,7 @@ export default function HomePage() {
                   <button
                     key={category}
                     onClick={() => setActiveItemCategory(category)}
-                    className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all duration-200 ${activeItemCategory === category
+                    className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all shadow-md duration-200 ${activeItemCategory === category
                       ? 'bg-[#e6e6e6]/20 text-[#e6e6e6] border border-[#e6e6e6]/20 shadow-lg shadow-[#e6e6e6]/10'
                       : 'text-gray-400 hover:bg-[#1D1D1D] hover:text-white border border-transparent'
                       }`}
@@ -495,7 +495,7 @@ export default function HomePage() {
                   {filteredItems.map((item) => (
                     <div
                       key={item.id}
-                      className="flex items-center justify-between p-4 rounded-xl bg-gray-800/50 border border-gray-700"
+                      className="flex items-center justify-between p-4 rounded-2xl bg-gray-800/50 border border-gray-700"
                     >
                       <div>
                         <h3 className="text-white font-medium mb-1">{item.name}</h3>
