@@ -8,14 +8,7 @@ const GoogleLogin = () => {
   const searchParams = useSearchParams();
   
   const handleGoogleLogin = () => {
-    // TODO: Implement Google login logic
-    var roomCode = searchParams.get('roomCode');
-    if(roomCode){
-      signIn("google", { callbackUrl: `/` });
-    } else {
-      signIn("google", { callbackUrl: `/` });
-    }
-    
+    signIn("google", { callbackUrl: `/` });
   };
 
   return (
