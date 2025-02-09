@@ -351,8 +351,8 @@ function HomePage() {
           handleLockFridge(fridgeId);
           loadFridges(userPos[0], userPos[1]);
           setSelectedFridge(null);
-
         }
+
       }
     } catch (error) {
       console.error('Error checking out item:', error);
@@ -755,10 +755,16 @@ function HomePage() {
       {session && (
         <AddItemModal
           isOpen={isAddItemModalOpen}
-          onClose={() => setIsAddItemModalOpen(false)}
+          onClose={() => {
+            setIsAddItemModalOpen(false);
+            if (userPos) {
+              loadFridges(userPos[0], userPos[1]);
+            }
+          }}
           fridges={fridges}
           user={{ name: session?.user?.name || '', email: session?.user?.email || '', id: session?.user?.id || '' }}
         />
+                
       )}
 
       {/* Image Modal */}
@@ -800,6 +806,3 @@ function HomePage() {
 
 export default HomePage;
 
-function closeItemModal() {
-  throw new Error('Function not implemented.');
-}
