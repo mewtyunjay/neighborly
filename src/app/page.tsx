@@ -218,8 +218,8 @@ function HomePage() {
     const a =
       Math.sin(dLat / 2) ** 2 +
       Math.cos(lat1 * Math.PI / 180) *
-        Math.cos(lat2 * Math.PI / 180) *
-        Math.sin(dLon / 2) ** 2;
+      Math.cos(lat2 * Math.PI / 180) *
+      Math.sin(dLon / 2) ** 2;
     const c = 2 * Math.asin(Math.sqrt(a));
     return R * c; // Distance in kilometers
   };
@@ -641,14 +641,15 @@ function HomePage() {
               <div className="flex items-center justify-between mb-2">
                 <div>
                   <h2 className="text-xl font-semibold text-white">{selectedFridge.name}</h2>
-                  <p className="text-gray-400 text-sm mt-1">{selectedFridge.address}</p>
+                  <p className="text-gray-400 text-xs mt-1">{selectedFridge.address}</p>
                 </div>
                 <div className="flex items-center gap-3">
                   <button
                     onClick={() => handleUnlock(selectedFridge.id)}
                     disabled={unlockedFridges[selectedFridge.id]?.isUnlocked}
+                    // Updated styling for unlocked state UI
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${unlockedFridges[selectedFridge.id]?.isUnlocked
-                      ? 'bg-emerald-500/20 text-emerald-400'
+                      ? 'bg-emerald-100 text-emerald-700 cursor-default'
                       : 'bg-blue-500 hover:bg-blue-600 text-white'
                       }`}
                   >
@@ -670,7 +671,23 @@ function HomePage() {
                 </div>
               </div>
             </div>
-
+            {/* Category Filters */}
+            <div className="p-4 border-b border-gray-800 overflow-x-auto">
+              <div className="flex gap-2">
+                {itemCategories.map((category) => (
+                  <button
+                    key={category}
+                    onClick={() => setActiveItemCategory(category)}
+                    className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all shadow-md duration-200 ${activeItemCategory === category
+                      ? 'bg-[#e6e6e6]/20 text-[#e6e6e6] border border-[#e6e6e6]/20 shadow-lg shadow-[#e6e6e6]/10'
+                      : 'text-gray-400 hover:bg-[#1D1D1D] hover:text-white border border-transparent'
+                      }`}
+                  >
+                    {category}
+                  </button>
+                ))}
+              </div>
+            </div>
             {/* Items List */}
             <div className="p-6 overflow-y-auto max-h-[50vh]">
               {filteredItems.length === 0 ? (
@@ -685,21 +702,6 @@ function HomePage() {
                       className="flex items-center justify-between p-4 rounded-2xl bg-gray-800/50 border border-gray-700"
                     >
                       <div className="flex items-center gap-4">
-                        {item.photo_url && (
-                          <div 
-                            className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectedImage({ url: item.photo_url, name: item.name });
-                            }}
-                          >
-                            <img 
-                              src={item.photo_url} 
-                              alt={item.name}
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                        )}
                         <div>
                           <h3 className="text-white font-medium mb-1">{item.name}</h3>
                           {item.description && (
@@ -708,16 +710,28 @@ function HomePage() {
                           <div className="flex items-center gap-3 text-sm">
                             <span className="text-gray-400">Quantity: {item.quantity}</span>
                             <span className="px-3 py-1 rounded-full bg-gray-700 text-gray-400 text-xs">
-                              Added on {" "}
-                              {new Date(item.addedAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
+                              ↓{" "}
+                              {new Date(item.addedAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                             </span>
                           </div>
                         </div>
                       </div>
-                      <div className="flex items-center gap-3">
-                        <span className="px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                          {item.category.charAt(0).toUpperCase() + item.category.slice(1)}
-                        </span>
+                      <div className="flex flex-col items-center gap-3">
+                        {item.photo_url && (
+                          <div
+                            className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedImage({ url: item.photo_url, name: item.name });
+                            }}
+                          >
+                            <img
+                              src={item.photo_url}
+                              alt={item.name}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        )}
                         {unlockedFridges[selectedFridge.id]?.isUnlocked &&
                           unlockedFridges[selectedFridge.id]?.isWithinRange && (
                             <button
@@ -764,16 +778,16 @@ function HomePage() {
           fridges={fridges}
           user={{ name: session?.user?.name || '', email: session?.user?.email || '', id: session?.user?.id || '' }}
         />
-                
+
       )}
 
       {/* Image Modal */}
       {selectedImage && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[60] p-4"
           onClick={() => setSelectedImage(null)}
         >
-          <div 
+          <div
             className="relative max-w-3xl w-full bg-[#111111] rounded-2xl overflow-hidden shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
@@ -788,8 +802,8 @@ function HomePage() {
               </button>
             </div>
             <div className="aspect-square w-full">
-              <img 
-                src={selectedImage.url} 
+              <img
+                src={selectedImage.url}
                 alt={selectedImage.name}
                 className="w-full h-full object-contain"
               />
