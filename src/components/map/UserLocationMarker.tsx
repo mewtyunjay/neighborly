@@ -7,22 +7,17 @@ interface UserLocationMarkerProps {
 
 export const createUserLocationMarker = ({ position, map }: UserLocationMarkerProps): mapboxgl.Marker => {
   const markerContainer = document.createElement("div");
-  markerContainer.className = "relative";
+  markerContainer.className = "relative flex items-center justify-center w-8 h-8";
 
-  // Inner dot
+  // Inner dot with pulsing effect
   const innerDot = document.createElement("div");
-  innerDot.className = "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-blue-500 rounded-full shadow-lg";
+  innerDot.className = "w-4 h-4 bg-blue-500 rounded-full shadow-md animate-pulse";
 
-  // Outer glowing ring
+  // Outer pulsing ring
   const outerRing = document.createElement("div");
-  outerRing.className = "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-blue-500/30 rounded-full animate-[ping_2s_cubic-bezier(0,0,0.2,1)_infinite]";
-
-  // Middle ring for better visual effect
-  const middleRing = document.createElement("div");
-  middleRing.className = "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 bg-blue-500/50 rounded-full";
+  outerRing.className = "absolute w-10 h-10 border-2 border-blue-500 rounded-full opacity-50 animate-[ping_2s_cubic-bezier(0,0,0.2,1)_infinite]";
 
   markerContainer.appendChild(outerRing);
-  markerContainer.appendChild(middleRing);
   markerContainer.appendChild(innerDot);
 
   return new mapboxgl.Marker({
@@ -31,4 +26,4 @@ export const createUserLocationMarker = ({ position, map }: UserLocationMarkerPr
   })
     .setLngLat(position)
     .addTo(map);
-}; 
+};
