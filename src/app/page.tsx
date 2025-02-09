@@ -346,11 +346,11 @@ function HomePage() {
       });
 
       if (response.ok) {
+        
         if (userPos) {
-
           handleLockFridge(fridgeId);
-          loadFridges(userPos[0], userPos[1]);
           setSelectedFridge(null);
+          loadFridges(userPos[0], userPos[1]);
         }
 
       }
@@ -759,8 +759,7 @@ function HomePage() {
             <Profile
               isOpen={isProfileOpen}
               onClose={() => setIsProfileOpen(false)}
-              user={{ name: session.user?.name || '', email: session.user?.email || '' }}
-            />
+               />
           )}
         </>
       )}
