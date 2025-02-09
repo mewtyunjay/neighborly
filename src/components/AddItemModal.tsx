@@ -29,7 +29,6 @@ export default function AddItemModal({ isOpen, onClose, fridges }: AddItemModalP
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const webcamRef = useRef<Webcam | null>(null);
 
-  // Reset states when modal closes
   useEffect(() => {
     if (!isOpen) {
       setIsCameraActive(false);
@@ -43,12 +42,10 @@ export default function AddItemModal({ isOpen, onClose, fridges }: AddItemModalP
     }
   }, [isOpen]);
 
-  // Auto-select nearest available fridge
   useEffect(() => {
     if (isOpen && fridges.length > 0) {
       const availableFridges = fridges.filter(f => f.status === 'available');
       if (availableFridges.length > 0) {
-        // Find nearest fridge by comparing distance strings (assuming format "X.X km")
         const nearest = availableFridges.reduce((nearest, current) => {
           const nearestDist = parseFloat(nearest.distance.split(' ')[0]);
           const currentDist = parseFloat(current.distance.split(' ')[0]);
@@ -68,7 +65,7 @@ export default function AddItemModal({ isOpen, onClose, fridges }: AddItemModalP
     if (webcamRef.current) {
       const imageSrc = webcamRef.current.getScreenshot();
       if (!imageSrc) return;
-      
+
       setCapturedImage(imageSrc);
       setIsCameraActive(false);
       setIsAnalyzing(true);
@@ -82,7 +79,6 @@ export default function AddItemModal({ isOpen, onClose, fridges }: AddItemModalP
         });
       } catch (error) {
         console.error('Error analyzing image:', error);
-        // Handle error appropriately
       } finally {
         setIsAnalyzing(false);
       }
@@ -98,20 +94,18 @@ export default function AddItemModal({ isOpen, onClose, fridges }: AddItemModalP
     e.preventDefault();
     if (!selectedFridge || parseInt(formData.quantity) === 0) return;
 
-    // Handle form submission
     console.log({
       fridge: selectedFridge,
       item: {
         ...formData,
-        quantity: parseInt(formData.quantity)
-      }
+        quantity: parseInt(formData.quantity),
+      },
     });
     onClose();
   };
 
   const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    // Allow empty string (while typing) or valid numbers
     if (value === '' || /^\d+$/.test(value)) {
       setFormData({ ...formData, quantity: value });
     }
@@ -122,7 +116,6 @@ export default function AddItemModal({ isOpen, onClose, fridges }: AddItemModalP
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="bg-[#111111] rounded-2xl w-full max-w-[500px] overflow-hidden border border-gray-800 shadow-xl">
-        {/* Modal Header */}
         <div className="p-6 border-b border-gray-800">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold text-white">Add Item</h2>
@@ -137,37 +130,32 @@ export default function AddItemModal({ isOpen, onClose, fridges }: AddItemModalP
           </div>
         </div>
 
-        {/* Selected Fridge Info */}
         {selectedFridge && (
-          <div className="px-6 py-4 border-b border-gray-800 bg-emerald-500/5">
+          <div className="px-6 py-4 border-b border-gray-800 bg-[#e6e6e6]/5">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-emerald-400 font-medium">{selectedFridge.name}</h3>
+                <h3 className="text-[#e6e6e6] font-medium">{selectedFridge.name}</h3>
                 <p className="text-sm text-gray-400 mt-1">{selectedFridge.address}</p>
               </div>
-              <span className="text-sm text-emerald-400">{selectedFridge.distance}</span>
+              <span className="text-sm text-[#e6e6e6]">{selectedFridge.distance}</span>
             </div>
           </div>
         )}
 
-        {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          {/* Photo Upload/Camera Section */}
           {isCameraActive ? (
             <div className="relative w-full aspect-video rounded-xl overflow-hidden">
               <Webcam
                 ref={webcamRef}
                 audio={false}
                 screenshotFormat="image/jpeg"
-                videoConstraints={{
-                  facingMode: 'environment'
-                }}
+                videoConstraints={{ facingMode: 'environment' }}
                 className="w-full h-full object-cover"
               />
               <button
                 type="button"
                 onClick={handleCapture}
-                className="absolute bottom-4 left-1/2 -translate-x-1/2 px-6 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full"
+                className="absolute bottom-4 left-1/2 -translate-x-1/2 px-6 py-2 bg-[#111111] hover:bg-[#e6e6e6] text-white rounded-full"
               >
                 Capture Photo
               </button>
@@ -178,7 +166,7 @@ export default function AddItemModal({ isOpen, onClose, fridges }: AddItemModalP
               {isAnalyzing ? (
                 <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                   <div className="text-white text-center">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500 mx-auto mb-2"></div>
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#e6e6e6] mx-auto mb-2"></div>
                     <p>Analyzing image...</p>
                   </div>
                 </div>
@@ -186,7 +174,7 @@ export default function AddItemModal({ isOpen, onClose, fridges }: AddItemModalP
                 <button
                   type="button"
                   onClick={handleRetake}
-                  className="absolute bottom-4 left-1/2 -translate-x-1/2 px-6 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full"
+                  className="absolute bottom-4 left-1/2 -translate-x-1/2 px-6 py-2 bg-[#111111] hover:bg-[#e6e6e6] text-white rounded-full"
                 >
                   Retake Photo
                 </button>
@@ -196,23 +184,35 @@ export default function AddItemModal({ isOpen, onClose, fridges }: AddItemModalP
             <button
               type="button"
               onClick={handleStartCamera}
-              className="relative p-6 w-full rounded-xl border-2 border-dashed border-gray-700 hover:border-emerald-500/50 transition-colors group"
+              className="relative p-6 w-full rounded-xl border-2 border-dashed border-gray-700 hover:border-[#e6e6e6]/50 transition-colors group"
             >
               <div className="flex flex-col items-center gap-2">
-                <div className="p-3 rounded-full bg-emerald-500/10 text-emerald-400 group-hover:bg-emerald-500/20 transition-colors">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z" />
+                <div className="p-3 rounded-full bg-[#e6e6e6]/10 text-[#e6e6e6] group-hover:bg-[#e6e6e6]/20 transition-colors">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="w-6 h-6"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z"
+                    />
                   </svg>
                 </div>
-                <span className="text-gray-400 group-hover:text-gray-300">
-                  Take a photo
-                </span>
+                <span className="text-gray-400 group-hover:text-gray-300">Take a photo</span>
               </div>
             </button>
           )}
 
-          {/* Form Fields */}
           <div className="space-y-4">
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-gray-400 mb-1">
@@ -222,8 +222,8 @@ export default function AddItemModal({ isOpen, onClose, fridges }: AddItemModalP
                 type="text"
                 id="name"
                 value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full px-4 py-2 bg-[#1D1D1D] rounded-xl text-gray-100 placeholder-gray-500 border border-gray-800 focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 focus:outline-none transition-colors"
+                onChange={e => setFormData({ ...formData, name: e.target.value })}
+                className="w-full px-4 py-2 bg-[#1D1D1D] rounded-xl text-gray-100 placeholder-gray-500 border border-gray-800 focus:border-[#e6e6e6]/50 focus:ring-1 focus:ring-[#e6e6e6]/50 focus:outline-none transition-colors"
                 placeholder="What are you donating?"
                 required
               />
@@ -236,9 +236,9 @@ export default function AddItemModal({ isOpen, onClose, fridges }: AddItemModalP
               <textarea
                 id="description"
                 value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                onChange={e => setFormData({ ...formData, description: e.target.value })}
                 rows={3}
-                className="w-full px-4 py-2 bg-[#1D1D1D] rounded-xl text-gray-100 placeholder-gray-500 border border-gray-800 focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 focus:outline-none transition-colors"
+                className="w-full px-4 py-2 bg-[#1D1D1D] rounded-xl text-gray-100 placeholder-gray-500 border border-gray-800 focus:border-[#e6e6e6]/50 focus:ring-1 focus:ring-[#e6e6e6]/50 focus:outline-none transition-colors"
                 placeholder="Add details about the item..."
               />
             </div>
@@ -254,17 +254,16 @@ export default function AddItemModal({ isOpen, onClose, fridges }: AddItemModalP
                 id="quantity"
                 value={formData.quantity}
                 onChange={handleQuantityChange}
-                className="w-full px-4 py-2 bg-[#1D1D1D] rounded-xl text-gray-100 placeholder-gray-500 border border-gray-800 focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 focus:outline-none transition-colors"
+                className="w-full px-4 py-2 bg-[#1D1D1D] rounded-xl text-gray-100 placeholder-gray-500 border border-gray-800 focus:border-[#e6e6e6]/50 focus:ring-1 focus:ring-[#e6e6e6]/50 focus:outline-none transition-colors"
                 required
               />
             </div>
           </div>
 
-          {/* Submit Button */}
           <button
             type="submit"
             disabled={!selectedFridge || !formData.name || parseInt(formData.quantity) === 0}
-            className="w-full py-3 px-4 bg-emerald-500 hover:bg-emerald-600 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-medium rounded-xl transition-colors"
+            className="w-full py-3 px-4 bg-[#111111] hover:bg-[#e6e6e6] disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-medium rounded-xl transition-colors"
           >
             Add to {selectedFridge?.name || 'Fridge'}
           </button>
@@ -272,4 +271,4 @@ export default function AddItemModal({ isOpen, onClose, fridges }: AddItemModalP
       </div>
     </div>
   );
-} 
+}
