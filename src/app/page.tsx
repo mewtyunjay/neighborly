@@ -203,17 +203,22 @@ function HomePage() {
     }
   };
 
-  const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
-    // calculation algorithm
-    const R = 3959; //
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
+  const calculateDistance = (
+    lat1: number,
+    lon1: number,
+    lat2: number,
+    lon2: number
+  ) => {
+    const R = 6371; // Earth's radius in km
+    const dLat = ((lat2 - lat1) * Math.PI) / 180;
+    const dLon = ((lon2 - lon1) * Math.PI) / 180;
     const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-      Math.sin(dLon / 2) * Math.sin(dLon / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c; // Distance in miles
+      Math.sin(dLat / 2) ** 2 +
+      Math.cos(lat1 * Math.PI / 180) *
+        Math.cos(lat2 * Math.PI / 180) *
+        Math.sin(dLon / 2) ** 2;
+    const c = 2 * Math.asin(Math.sqrt(a));
+    return R * c; // Distance in kilometers
   };
 
   const [unlockedFridges, setUnlockedFridges] = useState<UnlockedFridgeState>({});
@@ -290,25 +295,32 @@ function HomePage() {
 
       const data = await response.json();
 
-      const mappedFridges: FridgeLocation[] = data.map((fridge: any) => ({
-        id: fridge._id,
-        name: fridge.name,
-        address: fridge.address,
-        distance: "0.5 km",
-        status: fridge.isLocked ? 'available' : 'unavailable',
-        coordinates: fridge.location.coordinates,
-        percentageFull: 75,
-        items: fridge.items.map((item: any) => ({
-          id: item._id,
-          name: item.name,
-          quantity: item.quantity,
-          addedAt: new Date(item.createdAt).toLocaleString(),
-          category: 'food'
-        }))
-      }));
+      const mappedFridges: FridgeLocation[] = data.map((fridge: any) => {
+        const distance = calculateDistance(
+          latitude,
+          longitude,
+          fridge.location.coordinates[1],
+          fridge.location.coordinates[0]
+        );
+        return {
+          id: fridge._id,
+          name: fridge.name,
+          address: fridge.address,
+          distance: `${distance.toFixed(2)} km`,
+          status: fridge.isLocked ? 'available' : 'unavailable',
+          coordinates: fridge.location.coordinates,
+          percentageFull: 75,
+          items: fridge.items.map((item: any) => ({
+            id: item._id,
+            name: item.name,
+            quantity: item.quantity,
+            addedAt: new Date(item.createdAt).toLocaleString(),
+            category: 'food'
+          }))
+        };
+      });
 
       setFridges(mappedFridges);
-
     } catch (error) {
       console.error("Error loading fridges:", error);
     }
@@ -327,8 +339,8 @@ function HomePage() {
       if (response.ok) {
         if (userPos) {
 
-          setSelectedFridge(null);
           handleLockFridge(fridgeId);
+          setSelectedFridge(null);
           loadFridges(userPos[0], userPos[1]);
         }
       }
