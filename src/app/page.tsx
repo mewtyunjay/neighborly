@@ -407,8 +407,8 @@ export default function HomePage() {
                   key={fridge.id}
                   onClick={() => handleFridgeClick(fridge)}
                   className={`group p-3 rounded-xl transition-all duration-200 cursor-pointer border ${selectedFridgeId === fridge.id
-                    ? 'bg-[#1D1D1D] border-emerald-500/50 shadow-lg shadow-emerald-500/10'
-                    : 'hover:bg-[#1D1D1D] border-gray-800/50 hover:border-emerald-500/20 hover:shadow-lg hover:shadow-emerald-500/5'
+                    ? 'bg-[#1D1D1D] border-[#e6e6e6]/50 shadow-lg shadow-[#e6e6e6]/10'
+                    : 'hover:bg-[#1D1D1D] border-gray-800/50 hover:border-[#e6e6e6]/20 hover:shadow-lg hover:shadow-[#e6e6e6]/5'
                     }`}
                 >
                   <div className="flex items-center justify-between mb-2">
@@ -474,7 +474,7 @@ export default function HomePage() {
                     key={category}
                     onClick={() => setActiveItemCategory(category)}
                     className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all duration-200 ${activeItemCategory === category
-                      ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 shadow-lg shadow-emerald-500/10'
+                      ? 'bg-[#e6e6e6]/20 text-[#e6e6e6] border border-[#e6e6e6]/20 shadow-lg shadow-[#e6e6e6]/10'
                       : 'text-gray-400 hover:bg-[#1D1D1D] hover:text-white border border-transparent'
                       }`}
                   >
