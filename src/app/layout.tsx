@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Neighbourly: Your Community, You build it",
-  description: "Neighbourly: Your Community, You build it",
+  title: "Neighborly: Your Community, You build it",
+  description: "Neighborly: Your Community, You build it",
 };
 
 export default function RootLayout({

@@ -228,7 +228,12 @@ export default function HomePage() {
           <div className="flex items-center justify-between">
             {/* Logo on the left */}
             <div className="flex items-center">
-              <h1 className="text-2xl font-bold text-[#e6e6e6]">Neighbourly</h1>
+              <h1
+                className="text-2xl font-bold text-[#e6e6e6]"
+                style={{ fontFamily: "'Noto Sans', system-ui, sans-serif" }}
+              >
+                Neighborly
+              </h1>
             </div>
 
             {/* Actions on the right */}
@@ -280,7 +285,12 @@ export default function HomePage() {
           <div className="flex-none p-8 pb-4">
             {/* Logo Section */}
             <div className="flex flex-col items-center mb-6">
-              <h1 className="text-4xl font-bold text-[#e6e6e6] mb-2">Neighbourly</h1>
+              <h1
+                className="text-4xl font-bold text-[#e6e6e6] mb-2"
+                style={{ fontFamily: "'Noto Sans', system-ui, sans-serif" }}
+              >
+                Neighborly
+              </h1>
               <p className="text-gray-400 text-sm">Connect with your community</p>
             </div>
 
