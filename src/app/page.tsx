@@ -56,53 +56,7 @@ function HomePage() {
   const [startY, setStartY] = useState(0);
   const [selectedFridgeId, setSelectedFridgeId] = useState<string | null>(null);
   const [isAddItemModalOpen, setIsAddItemModalOpen] = useState(false);
-  const [fridges, setFridges] = useState<FridgeLocation[]>([
-    {
-      id: '1',
-      name: 'NYU Fridge',
-      address: '123 Washington Square, New York',
-      distance: '0.3 km',
-      status: 'available',
-      isLocked: false,
-      coordinates: [-73.9971, 40.7308],
-      percentageFull: 75,
-      items: [
-        {
-          id: '1',
-          name: 'Fresh Milk',
-          quantity: 3,
-          addedAt: '2 hours ago',
-          category: 'food'
-        },
-        {
-          id: '2',
-          name: 'Bread',
-          quantity: 2,
-          addedAt: '1 hour ago',
-          category: 'food'
-        }
-      ]
-    },
-    {
-      id: '2',
-      name: 'Greenwich Fridge',
-      address: '456 Broadway Ave',
-      distance: '0.5 km',
-      status: 'available',
-      isLocked: true,
-      coordinates: [-73.9990, 40.7264],
-      percentageFull: 30,
-      items: [
-        {
-          id: '3',
-          name: 'Canned Soup',
-          quantity: 5,
-          addedAt: '3 hours ago',
-          category: 'food'
-        }
-      ]
-    }
-  ]);
+  const [fridges, setFridges] = useState<FridgeLocation[]>([]);
 
   const filters = ['All', 'Available', 'Upcoming', 'Unavailable'];
   const itemCategories = ['All', 'Medicine', 'Utilities', 'Food'];
