@@ -4,7 +4,7 @@
 
 ## Screenshots
 
-![Desktop View](public/desktop0.png)
+![Desktop View](public/desktop1.png)
 
 ### Mobile Views
 <div style="display: flex; gap: 10px;">
