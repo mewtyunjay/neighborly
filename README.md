@@ -7,7 +7,10 @@
 ![Desktop View](public/desktop0.png)
 
 ### Mobile Views
-![Mobile View 1](public/mobile0.png) ![Mobile View 2](public/mobile1.png)
+<div style="display: flex; gap: 10px;">
+    <img src="public/mobile0.png" alt="Mobile View 1" width="150"/>
+    <img src="public/mobile1.png" alt="Mobile View 2" width="150"/>
+</div>
 
 ## Overview
 
