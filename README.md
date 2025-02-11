@@ -2,6 +2,13 @@
 
 *Connecting Communities, Combating Food and Resource Scarcity*
 
+## Screenshots
+
+![Desktop View](public/desktop0.png)
+
+### Mobile Views
+![Mobile View 1](public/mobile0.png) ![Mobile View 2](public/mobile1.png)
+
 ## Overview
 
 Neighborly is a mobile-first web application built with Next.js designed to help tackle food scarcity and resource shortages in communities. Our goal is to empower neighbors to share resources and support one another.
