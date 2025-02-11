@@ -100,8 +100,7 @@ export async function analyzeImage(imageData: string): Promise<ItemAnalysis> {
         confidence: parsedResponse.confidence,
         category: parsedResponse.category
       };
-    } catch (e) {
-      console.error('Failed to parse JSON response:', text);
+    } catch {
       return defaultAnalysis;
     }
   } catch (error) {

@@ -8,6 +8,7 @@ import { redirect } from 'next/navigation';
 import { useSession } from "next-auth/react"
 import Profile from '@/components/Profile';
 import { signIn } from "next-auth/react"
+import Image from 'next/image';
 
 interface FridgeItem {
   id: string;
@@ -38,6 +39,9 @@ interface UnlockedFridgeState {
   }
 }
 
+interface MapRef {
+  flyTo: (options: { center: [number, number]; zoom: number; duration: number }) => void;
+}
 
 function HomePage() {
   // useEffect(() => {
@@ -46,7 +50,7 @@ function HomePage() {
   const { data: session } = useSession();
 
 
-  const mapRef = useRef<any>(null);
+  const mapRef = useRef<MapRef | null>(null);
   const [userPos, setUserPos] = useState<[number, number] | null>(null);
   const [activeFilter, setActiveFilter] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
@@ -63,6 +67,55 @@ function HomePage() {
 
   const filters = ['All', 'Available', 'Upcoming', 'Unavailable'];
   const itemCategories = ['All', 'Medicine', 'Utilities', 'Food'];
+
+  const loadFridges = async (longitude: number, latitude: number) => {
+    try {
+      const response = await fetch('/api/load', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ longitude, latitude }),
+      });
+
+      const data = await response.json();
+
+      const mappedFridges: FridgeLocation[] = data.map((fridge: any) => {
+        const distance = calculateDistance(
+          latitude,
+          longitude,
+          fridge.location.coordinates[1],
+          fridge.location.coordinates[0]
+        );
+        const totalQuantity = fridge.items.reduce(
+          (acc: number, item: any) => acc + item.quantity,
+          0
+        );
+        return {
+          id: fridge._id,
+          name: fridge.name,
+          address: fridge.address,
+          distance: `${distance.toFixed(2)} km`,
+          status: fridge.isLocked ? 'available' : 'unavailable',
+          coordinates: fridge.location.coordinates,
+          percentageFull: totalQuantity,
+          items: fridge.items.map((item: any) => ({
+            id: item._id,
+            name: item.name,
+            quantity: item.quantity,
+            addedAt: new Date(item.createdAt).toLocaleString(),
+            category: item.category || 'food',
+            photo_url: item.photo_url || '',
+            description: item.description || '',
+          })),
+        };
+      });
+
+      setFridges(mappedFridges);
+    } catch (error) {
+      console.error("Error loading fridges:", error);
+    }
+  };
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -286,55 +339,6 @@ function HomePage() {
     }
   };
 
-  const loadFridges = async (longitude: number, latitude: number) => {
-    try {
-      const response = await fetch('/api/load', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ longitude, latitude }),
-      });
-
-      const data = await response.json();
-
-      const mappedFridges: FridgeLocation[] = data.map((fridge: any) => {
-        const distance = calculateDistance(
-          latitude,
-          longitude,
-          fridge.location.coordinates[1],
-          fridge.location.coordinates[0]
-        );
-        const totalQuantity = fridge.items.reduce(
-          (acc: number, item: any) => acc + item.quantity,
-          0
-        );
-        return {
-          id: fridge._id,
-          name: fridge.name,
-          address: fridge.address,
-          distance: `${distance.toFixed(2)} km`,
-          status: fridge.isLocked ? 'available' : 'unavailable',
-          coordinates: fridge.location.coordinates,
-          percentageFull: totalQuantity,
-          items: fridge.items.map((item: any) => ({
-            id: item._id,
-            name: item.name,
-            quantity: item.quantity,
-            addedAt: new Date(item.createdAt).toLocaleString(),
-            category: item.category || 'food',
-            photo_url: item.photo_url || '',
-            description: item.description || '',
-          })),
-        };
-      });
-
-      setFridges(mappedFridges);
-    } catch (error) {
-      console.error("Error loading fridges:", error);
-    }
-  };
-
   const handleCheckout = async (itemId: string, fridgeId: string) => {
     try {
       const response = await fetch('/api/checkout', {
@@ -376,7 +380,7 @@ function HomePage() {
                 className="text-2xl font-bold text-[#e6e6e6]"
                 style={{ fontFamily: "'Noto Sans', system-ui, sans-serif" }}
               >
-                Neighborly
+                Neighbourly
               </h1>
             </div>
 
@@ -397,9 +401,16 @@ function HomePage() {
                     onClick={() => setIsProfileOpen(true)}
                     className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center hover:bg-gray-600 transition-colors"
                   >
-                    <svg className="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
+                    {session?.user?.image && typeof session.user.image === 'string' && (
+                      <Image
+                        src={session.user.image}
+                        alt={session.user.name || "Profile"}
+                        width={32}
+                        height={32}
+                        className="w-full h-full rounded-full object-cover"
+                        unoptimized
+                      />
+                    )}
                   </button>
                 </>
               ) : (
@@ -467,16 +478,15 @@ function HomePage() {
                 onClick={() => setIsProfileOpen(true)}
                 className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center hover:bg-gray-600 transition-colors shadow-lg"
               >
-                {session.user?.image ? (
-                  <img
+                {session?.user?.image && typeof session.user.image === 'string' && (
+                  <Image
                     src={session.user.image}
                     alt={session.user.name || "Profile"}
+                    width={40}
+                    height={40}
                     className="w-full h-full rounded-full object-cover"
+                    unoptimized
                   />
-                ) : (
-                  <svg className="w-6 h-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
                 )}
               </button>
             </>
@@ -520,7 +530,7 @@ function HomePage() {
                 className="text-4xl font-bold text-[#e6e6e6] mb-2"
                 style={{ fontFamily: "'Noto Sans', system-ui, sans-serif" }}
               >
-                Neighborly
+                Neighbourly
               </h1>
               <p className="text-gray-400 text-sm">Connect with your community</p>
             </div>
@@ -771,7 +781,7 @@ function HomePage() {
                         </div>
                       </div>
                       <div className="flex flex-col items-center gap-3">
-                        {item.photo_url && (
+                        {item.photo_url && typeof item.photo_url === 'string' && (
                           <div
                             className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
                             onClick={(e) => {
@@ -779,10 +789,13 @@ function HomePage() {
                               setSelectedImage({ url: item.photo_url, name: item.name });
                             }}
                           >
-                            <img
+                            <Image
                               src={item.photo_url}
                               alt={item.name}
+                              width={64}
+                              height={64}
                               className="w-full h-full object-cover"
+                              unoptimized
                             />
                           </div>
                         )}
@@ -835,7 +848,7 @@ function HomePage() {
       )}
 
       {/* Image Modal */}
-      {selectedImage && (
+      {selectedImage && typeof selectedImage.url === 'string' && (
         <div
           className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[60] p-4"
           onClick={() => setSelectedImage(null)}
@@ -855,10 +868,13 @@ function HomePage() {
               </button>
             </div>
             <div className="aspect-square w-full">
-              <img
+              <Image
                 src={selectedImage.url}
                 alt={selectedImage.name}
+                width={500}
+                height={500}
                 className="w-full h-full object-contain"
+                unoptimized
               />
             </div>
             <div className="p-4 border-t border-gray-800">

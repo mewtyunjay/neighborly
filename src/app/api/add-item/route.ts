@@ -7,6 +7,7 @@ export async function POST(request: Request) {
         const client = await clientPromise;
         const db = client.db('nyuhack');
         const collection = db.collection('items');
+        const formData = await request.formData();
         const body = await request.json();
         // Validate required fields
         const name = body.name;

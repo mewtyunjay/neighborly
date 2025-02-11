@@ -14,7 +14,7 @@ export default function Map({ userPos, locations, handleMarkerClick }: MapProps)
   const markers = useRef<{ [key: string]: mapboxgl.Marker }>({});
 
   const [center, setCenter] = useState<[number, number]>([-73.9971, 40.7308]); // Default to NYU coordinates
-  const [zoom, setZoom] = useState(14);
+  const [zoom] = useState(12);
 
   const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
 
@@ -174,6 +174,15 @@ export default function Map({ userPos, locations, handleMarkerClick }: MapProps)
       Object.values(markers.current).forEach(marker => marker.remove());
     };
   }, [locations, userPos, mapboxToken, center, zoom]);
+
+  useEffect(() => {
+    if (locations.find(loc => loc.isSelected)) {
+      const selected = locations.find(loc => loc.isSelected);
+      if (selected) {
+        handleMarkerClick(selected.id);
+      }
+    }
+  }, [locations, handleMarkerClick]);
 
   return (
     <div className="h-screen w-full relative">

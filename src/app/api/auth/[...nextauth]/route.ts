@@ -23,45 +23,15 @@ const authOption: NextAuthOptions = {
   },
 
   callbacks: {
-    async signIn({ account, profile }) {
-      if (!profile?.email) {
-        throw new Error('No profile')
-      }
-
-      await prisma.user.upsert({
-        where: {
-          email: profile.email,
-        },
-        create: {
-          email: profile.email,
-          name: profile.name,
-        },
-        update: {
-          name: profile.name,
-        },
-      })
-      return true
+    async signIn({ user }) {
+      return true;
     },
-    session,
-    async jwt({ token, user, account, profile }) {
-      if (profile) {
-        const user = await prisma.user.findUnique({
-          where: {
-            email: profile.email,
-          },
-        })
-        if (!user) {
-          throw new Error('No user found')
-        }
-        token.id = user.id
-      }
-      return token
-    },
-    async redirect({ url, baseUrl }) {
-      // console.log('redirect', url, baseUrl)
-      // return url.startsWith(baseUrl) ? url : '/' // Redirect to /dashboard after login
+    async redirect({ url }) {
       return url;
     },
+    async session({ session }) {
+      return session;
+    }
   },
 }
 
