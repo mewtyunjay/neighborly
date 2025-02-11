@@ -33,6 +33,8 @@ Follow these simple steps to get the project up and running:
 - **Prisma** and **MongoDB** for data management
 - **Tailwind CSS** for styling
 - **Gemini 2.0 Flash** for easier onboarding of items, providing advanced image analysis capabilities to accurately identify and categorize items for donation.
+- **Mapbox GL SDK** for integrating interactive maps and location services.
+
 
 - And other libraries that streamline development.
 
