@@ -8,8 +8,8 @@
 
 ### Mobile Views
 <div style="display: flex; gap: 10px;">
-    <img src="public/mobile0.png" alt="Mobile View 1" width="150"/>
-    <img src="public/mobile1.png" alt="Mobile View 2" width="150"/>
+    <img src="public/mobile0.png" alt="Mobile View 1" width="200"/>
+    <img src="public/mobile1.png" alt="Mobile View 2" width="200"/>
 </div>
 
 ## Overview
