@@ -1,8 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import Webcam from 'react-webcam';
 import { analyzeImage } from '@/utils/gemini';
-import Image from 'next/image';
-
 interface FridgeLocation {
 	id: string;
 	name: string;
@@ -36,7 +34,6 @@ export default function AddItemModal({ isOpen, onClose, fridges, user }: AddItem
 	const [capturedImage, setCapturedImage] = useState<string | null>(null);
 	const [isAnalyzing, setIsAnalyzing] = useState(false);
 	const [isSubmitting, setIsSubmitting] = useState(false);
-	const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 	const webcamRef = useRef<Webcam | null>(null);
 
 	useEffect(() => {
@@ -228,16 +225,7 @@ export default function AddItemModal({ isOpen, onClose, fridges, user }: AddItem
 						</div>
 					) : capturedImage ? (
 						<div className="relative w-full aspect-video rounded-xl overflow-hidden">
-							{capturedImage && typeof capturedImage === 'string' && (
-								<Image
-									src={capturedImage}
-									alt="Captured item"
-									width={500}
-									height={300}
-									className="w-full h-full object-cover rounded-lg"
-									unoptimized
-								/>
-							)}
+							<img src={capturedImage} alt="Captured item" className="w-full h-full object-cover" />
 							{isAnalyzing ? (
 								<div className="absolute inset-0 bg-black/50 flex items-center justify-center">
 									<div className="text-white text-center">

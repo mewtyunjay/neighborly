@@ -3,7 +3,6 @@
 import { signOut, useSession } from "next-auth/react";
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
 
 interface ProfileProps {
   isOpen: boolean;
@@ -79,15 +78,18 @@ const Profile = ({ isOpen, onClose }: ProfileProps) => {
         {/* User Info */}
         <div className="p-6 border-b border-gray-800">
           <div className="flex items-center gap-4">
-            {session?.user?.image && typeof session.user.image === 'string' && (
-              <Image
+            {session.user?.image ? (
+              <img
                 src={session.user.image}
-                alt={session.user.name || "Profile"}
-                width={80}
-                height={80}
-                className="w-20 h-20 rounded-full object-cover"
-                unoptimized
+                alt="Profile"
+                className="w-16 h-16 rounded-full"
               />
+            ) : (
+              <div className="w-16 h-16 rounded-full bg-gray-700 flex items-center justify-center">
+                <span className="text-2xl font-semibold text-white">
+                  {session.user.name?.[0]?.toUpperCase()}
+                </span>
+              </div>
             )}
             <div>
               <h2 className="text-xl font-semibold text-white">{session.user.name}</h2>
