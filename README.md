@@ -1,36 +1,43 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Neighborly
+
+*Connecting Communities, Combating Food and Resource Scarcity*
+
+## Overview
+
+Neighborly is a mobile-first web application built with Next.js designed to help tackle food scarcity and resource shortages in communities. Our goal is to empower neighbors to share resources and support one another.
 
 ## Getting Started
 
-First, run the development server:
+Follow these simple steps to get the project up and running:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+1. **Install Dependencies**
+   - Run `npm install` to install all the necessary packages.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. **Run the Development Server**
+   - Choose one of the following commands in your terminal:
+     - `npm run dev`
+     - `yarn dev`
+     - `pnpm dev`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. **View the App**
+   - Open your web browser and go to [http://localhost:3000](http://localhost:3000) to see the app in action.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Editing the Code
 
-## Learn More
+- To make changes, edit the main page located at `app/page.tsx`. Your changes will automatically refresh in the browser.
 
-To learn more about Next.js, take a look at the following resources:
+## Technologies
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Next.js** for building the user interface
+- **NextAuth** for authentication
+- **Prisma** and **MongoDB** for data management
+- **Tailwind CSS** for styling
+- **Gemini 2.0 Flash** for easier onboarding of items, providing advanced image analysis capabilities to accurately identify and categorize items for donation.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- And other libraries that streamline development.
 
-## Deploy on Vercel
+## Our Mission
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+We built Neighborly to address food and resource scarcity by uniting communities.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
