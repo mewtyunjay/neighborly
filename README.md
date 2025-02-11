@@ -40,4 +40,4 @@ Follow these simple steps to get the project up and running:
 
 We built Neighborly to address food and resource scarcity by uniting communities.
 
----
+---Updated README.md
