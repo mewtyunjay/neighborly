@@ -1,8 +1,7 @@
 'use client';
 
-import { signOut } from "next-auth/react";
-import React from 'react';
-import { useSession } from 'next-auth/react';
+import { signOut, useSession } from "next-auth/react";
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 interface ProfileProps {
@@ -11,12 +10,15 @@ interface ProfileProps {
 }
 
 const Profile = ({ isOpen, onClose }: ProfileProps) => {
-  if (!isOpen) return null;
-
   const { data: session } = useSession();
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
 
-  if (!session) return null;
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted || !isOpen || !session) return null;
 
   const menuItems = [
     {

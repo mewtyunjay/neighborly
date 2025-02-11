@@ -25,7 +25,7 @@ export async function POST(request: Request) {
                         ]
                     },
                     'distanceField': 'distance',
-                    'maxDistance': 3000
+                    'maxDistance': 100000
                 }
             }
         ]).toArray();
