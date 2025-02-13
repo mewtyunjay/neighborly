@@ -45,11 +45,6 @@ Follow these simple steps to get the project up and running:
 - **Gemini 2.0 Flash** for easier onboarding of items, providing advanced image analysis capabilities to accurately identify and categorize items for donation.
 - **Mapbox GL SDK** for integrating interactive maps and location services.
 
-
-- And other libraries that streamline development.
-
 ## Our Mission
 
 We built Neighborly to address food and resource scarcity by uniting communities.
-
----Updated README.md
